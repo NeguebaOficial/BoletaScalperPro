@@ -1,0 +1,8 @@
+# MetaTrader 5 — compilados e temporários
+*.ex5
+*.log
+
+# Editor / SO
+Thumbs.db
+Desktop.ini
+.DS_Store
