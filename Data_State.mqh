@@ -5,20 +5,21 @@
 #define DATA_STATE_MQH
 
 // ================= VARIÁVEIS DE ESTADO / PARÂMETROS =================
+// Defaults de operação (XAUUSD / scalper — alinhados ao painel)
 double Lotes = 0.01;
-int TP_Pontos = 800;
-int SL_Pontos = 900;
-int TrailStep_Pontos = 400;
-int BreakEvenOffset_Pontos = 0;
-int TrailMove_Pontos = 100;
+int TP_Pontos = 90000;
+int SL_Pontos = 1200;
+int TrailStep_Pontos = 180;
+int BreakEvenOffset_Pontos = 100;
+int TrailMove_Pontos = 120;
 
-// Presets (XAUUSD ~spread 40 pts)
-int PRESET_SCALP_TP = 9000;
+// Presets (XAUUSD ~spread 40 pts) — SCALP espelha os defaults acima
+int PRESET_SCALP_TP = 90000;
 int PRESET_SCALP_SL = 1200;
-int PRESET_SCALP_START = 250;
-int PRESET_SCALP_TRAILMOVE = 50;
-int PRESET_SCALP_BEOFFSET = 50;
-double PRESET_SCALP_ATRMUL = 1.50;
+int PRESET_SCALP_START = 180;
+int PRESET_SCALP_TRAILMOVE = 120;
+int PRESET_SCALP_BEOFFSET = 100;
+double PRESET_SCALP_ATRMUL = 1.20;
 
 int PRESET_NORMAL_TP = 9000;
 int PRESET_NORMAL_SL = 900;
@@ -44,8 +45,8 @@ long MAGIC_TRAIL_SL = 7701;
 long MAGIC_TRAIL_TP = 7702;
 long MAGIC_ATR_TRAIL = 7703;
 
-int ATR_Period = 14;
-double ATR_Mult = 2.0;
+int ATR_Period = 7;
+double ATR_Mult = 1.20;
 int atrHandle = INVALID_HANDLE;
 
 bool EnableLogs = true;
