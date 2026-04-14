@@ -23,15 +23,18 @@ color COR_AZUL = (color)0x2979FF;
 #define BTN_FONT_REGULAR "Segoe UI"
 #define BTN_FONT_BOLD "Arial Bold"
 
-string objetos[53] = {
+string objetos[62] = {
    "painelBorder", "painel", "lblTitulo", "lblLote", "editLote", "btnLot03", "btnLot06", "btnLot09",
    "btnLotPlus", "btnLotMinus", "lblTP", "editTP", "lblSL", "editSL",
    "lblTrailStep", "editTrailStep",
    "btnPresetScalp", "btnPresetNormal", "btnPresetSwing",
    "btnBuy", "btnSell",
    "btnBuyATR", "btnSellATR",
+   "btnBuyTrailTs", "btnSellTrailTs", "btnBuyTrailTt", "btnSellTrailTt",
    "lblATRPeriod", "editATRPeriod", "lblATRMul", "editATRMul",
    "lblTrailMove", "editTrailMove", "lblBEOffset", "editBEOffset",
+   "lblRatchetEvery", "editRatchetEvery", "lblRatchetLock", "editRatchetLock",
+   "lblSepParams",
    "btnLogs",
    "btnCloseAll", "btnCloseBuys", "btnCloseSells",
    "lblInfoTitulo",
@@ -66,6 +69,8 @@ void ApplyPreset(const int presetId)
    if(ObjectFind(0, "editTrailMove") >= 0) UpdateEditInt("editTrailMove", TrailMove_Pontos);
    if(ObjectFind(0, "editBEOffset") >= 0) UpdateEditInt("editBEOffset", BreakEvenOffset_Pontos);
    if(ObjectFind(0, "editATRMul") >= 0) ObjectSetString(0, "editATRMul", OBJPROP_TEXT, DoubleToString(ATR_Mult, 2));
+   if(ObjectFind(0, "editRatchetEvery") >= 0) UpdateEditInt("editRatchetEvery", RatchetProfitEvery_Pontos);
+   if(ObjectFind(0, "editRatchetLock") >= 0) UpdateEditInt("editRatchetLock", RatchetLockPts_Pontos);
   }
 
 string LogsButtonText() { return EnableLogs ? "LOG: ON" : "LOG: OFF"; }
@@ -214,7 +219,7 @@ void CreateEdit(string name, int x, int y, int w, int h, string text)
    ObjectSetInteger(0, name, OBJPROP_ZORDER, 10);
   }
 
-void CreateLabel(string name, int x, int y, string text, color cor, int size)
+void CreateLabel(string name, int x, int y, string text, color cor, int size, bool boldFont = false)
   {
    ObjectCreate(0, name, OBJ_LABEL, 0, 0, 0);
    ObjectSetInteger(0, name, OBJPROP_XDISTANCE, x);
@@ -223,7 +228,9 @@ void CreateLabel(string name, int x, int y, string text, color cor, int size)
    ObjectSetInteger(0, name, OBJPROP_COLOR, cor);
    ObjectSetInteger(0, name, OBJPROP_FONTSIZE, size);
    string fontName = "Segoe UI Semilight";
-   if(cor == COR_BUY || cor == COR_SELL || cor == COR_BUY_SOFT || cor == COR_SELL_SOFT || cor == COR_LABEL || cor == COR_TEXTO || cor == COR_WARN)
+   if(boldFont)
+      fontName = BTN_FONT_BOLD;
+   else if(cor == COR_BUY || cor == COR_SELL || cor == COR_BUY_SOFT || cor == COR_SELL_SOFT || cor == COR_LABEL || cor == COR_TEXTO || cor == COR_WARN)
       fontName = "Segoe UI Semibold";
    ObjectSetString(0, name, OBJPROP_FONT, fontName);
    ObjectSetInteger(0, name, OBJPROP_ZORDER, 10);
@@ -290,59 +297,83 @@ void Panel_InitBoleta(const int x, const int y)
    CreateButton("btnLotMinus", x + 330, y + 60, 30, 28, "-", COR_SELL, true);
    SetTooltip("btnLotMinus", "Diminui o lote em -0.01 (mín. 0.01)");
 
-   CreateLabel("lblTP", x + 20, y + 100, "Take Profit", COR_LABEL, 9);
-   CreateEdit("editTP", x + 20, y + 120, 130, 28, IntegerToString(TP_Pontos));
+   CreateLabel("lblTP", x + 20, y + 100, "Take Profit", COR_LABEL, 9, true);
+   CreateEdit("editTP", x + 20, y + 120, 70, 28, IntegerToString(TP_Pontos));
    SetTooltip("lblTP", "TP inicial em pontos (pts). Digits=2: 100 pts = $1.00 no XAUUSD.");
    SetTooltip("editTP", "TP inicial em pontos (pts). Digits=2: 100 pts = $1.00 no XAUUSD.");
 
-   CreateLabel("lblSL", x + 170, y + 100, "Stop Loss", COR_LABEL, 9);
-   CreateEdit("editSL", x + 170, y + 120, 130, 28, IntegerToString(SL_Pontos));
+   CreateLabel("lblSL", x + 170, y + 100, "Stop Loss", COR_LABEL, 9, true);
+   CreateEdit("editSL", x + 170, y + 120, 70, 28, IntegerToString(SL_Pontos));
    SetTooltip("lblSL", "SL inicial em pontos (pts). Deve ser maior que o spread e respeitar o stop level.");
    SetTooltip("editSL", "SL inicial em pontos (pts). Deve ser maior que o spread e respeitar o stop level.");
 
-   CreateLabel("lblTrailStep", x + 290, y + 100, "Start Lucro pts", COR_LABEL, 9);
+   CreateLabel("lblTrailStep", x + 290, y + 100, "Gatilho", COR_LABEL, 9, true);
    CreateEdit("editTrailStep", x + 290, y + 120, 70, 28, IntegerToString(TrailStep_Pontos));
-   SetTooltip("lblTrailStep", "Gatilho (lucro em pts) para ativar a gestão (BE/ATR). Antes disso não move SL/TP.");
-   SetTooltip("editTrailStep", "Gatilho (lucro em pts) para ativar a gestão (BE/ATR). Antes disso não move SL/TP.");
+   SetTooltip("lblTrailStep", "Gatilho (lucro em pts) para BE/ATR e para STEP TS/TT. Antes disso não move SL/TP.");
+   SetTooltip("editTrailStep", "Gatilho (lucro em pts) para BE/ATR e para STEP TS/TT. Antes disso não move SL/TP.");
 
-   CreateLabel("lblATRPeriod", x + 20, y + 160, "ATR Period", COR_LABEL, 9);
-   CreateEdit("editATRPeriod", x + 20, y + 178, 130, 24, IntegerToString(ATR_Period));
+   CreateLabel("lblATRPeriod", x + 20, y + 160, "Periodo ATR", COR_LABEL, 9, true);
+   CreateEdit("editATRPeriod", x + 20, y + 178, 70, 24, IntegerToString(ATR_Period));
    SetTooltip("lblATRPeriod", "Período do ATR usado no TRAIL ATR. Ex: 14. Quanto maior, mais 'lento' o trailing.");
    SetTooltip("editATRPeriod", "Período do ATR usado no TRAIL ATR. Ex: 14. Quanto maior, mais 'lento' o trailing.");
 
-   CreateLabel("lblATRMul", x + 170, y + 160, "ATR Mult", COR_LABEL, 9);
-   CreateEdit("editATRMul", x + 170, y + 178, 130, 24, DoubleToString(ATR_Mult, 2));
+   CreateLabel("lblATRMul", x + 170, y + 160, "ATR Mult", COR_LABEL, 9, true);
+   CreateEdit("editATRMul", x + 170, y + 178, 70, 24, DoubleToString(ATR_Mult, 2));
    SetTooltip("lblATRMul", "Multiplicador do ATR no TRAIL ATR. Maior = SL/TP mais distantes (mais folga).");
    SetTooltip("editATRMul", "Multiplicador do ATR no TRAIL ATR. Maior = SL/TP mais distantes (mais folga).");
 
-   CreateLabel("lblTrailMove", x + 290, y + 160, "Trail Move", COR_LABEL, 9);
+   CreateLabel("lblTrailMove", x + 290, y + 160, "Trail Move", COR_LABEL, 9, true);
    CreateEdit("editTrailMove", x + 290, y + 178, 70, 24, IntegerToString(TrailMove_Pontos));
-   SetTooltip("lblTrailMove", "Passo do trailing em degraus (pts) nos modos não-ATR (TS/TT).");
-   SetTooltip("editTrailMove", "Passo do trailing em degraus (pts) nos modos não-ATR (TS/TT).");
+   SetTooltip("lblTrailMove", "Passo do SL após o BE (TS/TT). Complementa a escada Lucro/Trava, se ela estiver ativa.");
+   SetTooltip("editTrailMove", "Passo do SL após o BE (TS/TT). Complementa a escada Lucro/Trava, se ela estiver ativa.");
 
-   CreateLabel("lblBEOffset", x + 290, y + 206, "BE Offset", COR_LABEL, 9);
+   CreateLabel("lblRatchetEvery", x + 20, y + 206, "Lucro/Degrau", COR_LABEL, 9, true);
+   CreateEdit("editRatchetEvery", x + 20, y + 224, 70, 24, IntegerToString(RatchetProfitEvery_Pontos));
+   SetTooltip("lblRatchetEvery", "STEP TS/TT: a cada X pts de lucro a favor (desde a entrada), sobe um degrau da escada. 0 = desliga escada.");
+   SetTooltip("editRatchetEvery", "STEP TS/TT: a cada X pts de lucro a favor (desde a entrada), sobe um degrau. 0 = desliga.");
+
+   CreateLabel("lblRatchetLock", x + 170, y + 206, "Trava/Degrau", COR_LABEL, 9, true);
+   CreateEdit("editRatchetLock", x + 170, y + 224, 70, 24, IntegerToString(RatchetLockPts_Pontos));
+   SetTooltip("lblRatchetLock", "STEP TS/TT: cada degrau puxa o SL N pts a favor a partir da entrada (compra: acima; venda: abaixo).");
+   SetTooltip("editRatchetLock", "STEP TS/TT: pts travados por degrau desde a entrada. Use com Lucro/degrau > 0.");
+
+   CreateLabel("lblBEOffset", x + 290, y + 206, "BE Offset", COR_LABEL, 9, true);
    CreateEdit("editBEOffset", x + 290, y + 224, 70, 24, IntegerToString(BreakEvenOffset_Pontos));
    SetTooltip("lblBEOffset", "Offset do Break-Even em pts. 0 = SL no preço de entrada; >0 trava lucro no BE.");
    SetTooltip("editBEOffset", "Offset do Break-Even em pts. 0 = SL no preço de entrada; >0 trava lucro no BE.");
 
-   CreateButton("btnBuy", x + 20, y + 250, 160, 40, "COMPRAR", COR_BUY, true);
+   CreateLabel("lblSepParams", x + 20, y + 252,
+               "────────────────────────────────────────────────────────────────────────────────", COR_NEUTRO, 8);
+   SetTooltip("lblSepParams", "Separa parâmetros de risco das ações de ordem.");
+
+   CreateButton("btnBuy", x + 20, y + 278, 160, 40, "COMPRAR", COR_BUY, true);
    SetTooltip("btnBuy", "Abre COMPRA com SL/TP fixos");
-   CreateButton("btnSell", x + 200, y + 250, 160, 40, "VENDER", COR_SELL, true);
+   CreateButton("btnSell", x + 200, y + 278, 160, 40, "VENDER", COR_SELL, true);
    SetTooltip("btnSell", "Abre VENDA com SL/TP fixos");
 
-   CreateButton("btnBuyATR", x + 20, y + 300, 160, 32, "TRAIL ATR BUY", COR_BUY, true);
+   CreateButton("btnBuyATR", x + 20, y + 328, 160, 32, "TRAIL ATR BUY", COR_BUY, true);
    SetTooltip("btnBuyATR", "COMPRA com trailing ATR");
-   CreateButton("btnSellATR", x + 200, y + 300, 160, 32, "TRAIL ATR SELL", COR_SELL, true);
+   CreateButton("btnSellATR", x + 200, y + 328, 160, 32, "TRAIL ATR SELL", COR_SELL, true);
    SetTooltip("btnSellATR", "VENDA com trailing ATR");
 
-   CreateButton("btnCloseBuys", x + 20, y + 340, 160, 32, "FECHAR BUY", COR_BUY, true);
+   CreateButton("btnBuyTrailTs", x + 20, y + 364, 160, 30, "STEP TS BUY", COR_BUY, true);
+   SetTooltip("btnBuyTrailTs", "COMPRA STEP TS: Start Lucro, Trail Move, BE Offset + escada Lucro/Trava (se ativa).");
+   CreateButton("btnSellTrailTs", x + 200, y + 364, 160, 30, "STEP TS SELL", COR_SELL, true);
+   SetTooltip("btnSellTrailTs", "VENDA STEP TS: Start Lucro, Trail Move, BE Offset + escada Lucro/Trava (se ativa).");
+
+   CreateButton("btnBuyTrailTt", x + 20, y + 398, 160, 30, "STEP TT BUY", COR_BUY, true);
+   SetTooltip("btnBuyTrailTt", "COMPRA STEP TT: mesma lógica do TS; magic TT + escada opcional.");
+   CreateButton("btnSellTrailTt", x + 200, y + 398, 160, 30, "STEP TT SELL", COR_SELL, true);
+   SetTooltip("btnSellTrailTt", "VENDA STEP TT: mesma lógica do TS; magic TT + escada opcional.");
+
+   CreateButton("btnCloseBuys", x + 20, y + 440, 160, 32, "FECHAR BUY", COR_BUY, true);
    SetTooltip("btnCloseBuys", "Fecha posições BUY apenas deste símbolo (gráfico atual).");
-   CreateButton("btnCloseSells", x + 200, y + 340, 160, 32, "FECHAR SELL", COR_SELL, true);
+   CreateButton("btnCloseSells", x + 200, y + 440, 160, 32, "FECHAR SELL", COR_SELL, true);
    SetTooltip("btnCloseSells", "Fecha posições SELL apenas deste símbolo (gráfico atual).");
-   CreateButton("btnCloseAll", x + 20, y + 380, 340, 32, "FECHAR TODAS", COR_NEUTRO, true);
+   CreateButton("btnCloseAll", x + 20, y + 480, 340, 32, "FECHAR TODAS", COR_NEUTRO, true);
    SetTooltip("btnCloseAll", "Fecha todas as posições deste símbolo no gráfico atual (não mexe em outros ativos).");
 
-   CreateLabel("lblInfoTitulo", x + 20, y + 418, "INFO", COR_TEXTO, 11);
+   CreateLabel("lblInfoTitulo", x + 20, y + 518, "INFO", COR_TEXTO, 11);
    SetTooltip("lblInfoTitulo", "Indicadores e progresso da meta do dia.");
 
    ObjectDelete(0, "lblLucro");
@@ -356,14 +387,14 @@ void Panel_InitBoleta(const int x, const int y)
    int colL = x + 20;
    int colV = x + 175;
 
-   int ySprATR = y + 450;
-   int yPnL = y + 464;
-   int yOpen = y + 478;
-   int ySep1 = y + 488;
-   int ySaldo = y + 494;
-   int yMeta = y + 508;
-   int yBar = y + 516;
-   int yGestao = y + 528;
+   int ySprATR = y + 550;
+   int yPnL = y + 564;
+   int yOpen = y + 578;
+   int ySep1 = y + 588;
+   int ySaldo = y + 594;
+   int yMeta = y + 608;
+   int yBar = y + 616;
+   int yGestao = y + 628;
 
    metaBarX = colL;
    metaBarY = yBar;
@@ -462,6 +493,11 @@ void Panel_OnChartEvent(const int id, const long &lparam, const double &dparam, 
       if(sparam == "btnBuyATR") AbrirOrdem(true, MODE_ATR);
       if(sparam == "btnSellATR") AbrirOrdem(false, MODE_ATR);
 
+      if(sparam == "btnBuyTrailTs") AbrirOrdem(true, MODE_TRAIL_SL);
+      if(sparam == "btnSellTrailTs") AbrirOrdem(false, MODE_TRAIL_SL);
+      if(sparam == "btnBuyTrailTt") AbrirOrdem(true, MODE_TRAIL_TP);
+      if(sparam == "btnSellTrailTt") AbrirOrdem(false, MODE_TRAIL_TP);
+
       if(sparam == "btnLogs")
         {
          EnableLogs = !EnableLogs;
@@ -540,6 +576,18 @@ void Panel_OnChartEvent(const int id, const long &lparam, const double &dparam, 
          int be = (int)StringToInteger(ObjectGetString(0, "editBEOffset", OBJPROP_TEXT));
          if(be < 0) be = 0;
          BreakEvenOffset_Pontos = be;
+        }
+      if(sparam == "editRatchetEvery")
+        {
+         int re = (int)StringToInteger(ObjectGetString(0, "editRatchetEvery", OBJPROP_TEXT));
+         if(re < 0) re = 0;
+         RatchetProfitEvery_Pontos = re;
+        }
+      if(sparam == "editRatchetLock")
+        {
+         int rl = (int)StringToInteger(ObjectGetString(0, "editRatchetLock", OBJPROP_TEXT));
+         if(rl < 0) rl = 0;
+         RatchetLockPts_Pontos = rl;
         }
      }
   }

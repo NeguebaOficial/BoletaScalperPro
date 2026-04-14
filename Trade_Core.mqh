@@ -383,14 +383,28 @@ void GerenciarTrailing()
            {
             double bePrice = openPrice + beOffset;
 
-            if(curSL < bePrice) newSL = bePrice;
-            else
+            double classicTarget = curSL;
+            if(curSL < bePrice)
+               classicTarget = bePrice;
+            else if(bid > curSL + stepMove + minDist)
+               classicTarget = curSL + stepMove;
+
+            double ratchetSL = 0.0;
+            int nR = 0;
+            if(RatchetProfitEvery_Pontos > 0 && RatchetLockPts_Pontos > 0)
               {
-               if(bid > curSL + stepMove + minDist)
-                 {
-                  newSL = curSL + stepMove;
-                 }
+               double profitPts = (bid - openPrice) / pt;
+               nR = (int)MathFloor(profitPts / (double)RatchetProfitEvery_Pontos);
+               if(nR >= 1)
+                  ratchetSL = openPrice + (double)nR * RatchetLockPts_Pontos * pt;
               }
+
+            double targetSL = classicTarget;
+            if(nR >= 1 && ratchetSL > 0.0)
+               targetSL = MathMax(classicTarget, ratchetSL);
+
+            if(MathAbs(targetSL - curSL) > pt)
+               newSL = targetSL;
            }
         }
       else if(posType == POSITION_TYPE_SELL)
@@ -399,14 +413,28 @@ void GerenciarTrailing()
            {
             double bePrice = openPrice - beOffset;
 
-            if(curSL > bePrice || curSL == 0) newSL = bePrice;
-            else
+            double classicTarget = curSL;
+            if(curSL > bePrice || curSL == 0.0)
+               classicTarget = bePrice;
+            else if(ask < curSL - stepMove - minDist)
+               classicTarget = curSL - stepMove;
+
+            double ratchetSL = 0.0;
+            int nR = 0;
+            if(RatchetProfitEvery_Pontos > 0 && RatchetLockPts_Pontos > 0)
               {
-               if(ask < curSL - stepMove - minDist)
-                 {
-                  newSL = curSL - stepMove;
-                 }
+               double profitPts = (openPrice - ask) / pt;
+               nR = (int)MathFloor(profitPts / (double)RatchetProfitEvery_Pontos);
+               if(nR >= 1)
+                  ratchetSL = openPrice - (double)nR * RatchetLockPts_Pontos * pt;
               }
+
+            double targetSL = classicTarget;
+            if(nR >= 1)
+               targetSL = MathMin(classicTarget, ratchetSL);
+
+            if(MathAbs(targetSL - curSL) > pt)
+               newSL = targetSL;
            }
         }
 

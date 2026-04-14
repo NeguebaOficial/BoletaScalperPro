@@ -7,19 +7,26 @@
 // ================= VARIÁVEIS DE ESTADO / PARÂMETROS =================
 // Defaults de operação (XAUUSD / scalper — alinhados ao painel)
 double Lotes = 0.01;
-int TP_Pontos = 90000;
+int TP_Pontos = 1000;
 int SL_Pontos = 1200;
 int TrailStep_Pontos = 180;
 int BreakEvenOffset_Pontos = 100;
 int TrailMove_Pontos = 120;
 
+// Escada de trava (só STEP TS/TT): a cada RatchetProfitEvery_Pontos de lucro a favor desde a entrada,
+// o SL mínimo (BUY) / máximo (SELL) avança RatchetLockPts_Pontos desde a entrada. 0 em "Lucro/degrau" desliga.
+int RatchetProfitEvery_Pontos = 400;
+int RatchetLockPts_Pontos = 100;
+
 // Presets (XAUUSD ~spread 40 pts) — SCALP espelha os defaults acima
-int PRESET_SCALP_TP = 90000;
+int PRESET_SCALP_TP = 1000;
 int PRESET_SCALP_SL = 1200;
 int PRESET_SCALP_START = 180;
 int PRESET_SCALP_TRAILMOVE = 120;
 int PRESET_SCALP_BEOFFSET = 100;
 double PRESET_SCALP_ATRMUL = 1.20;
+int PRESET_SCALP_RATCHEVERY = 400;
+int PRESET_SCALP_RATCHECK = 100;
 
 int PRESET_NORMAL_TP = 9000;
 int PRESET_NORMAL_SL = 900;
@@ -27,6 +34,8 @@ int PRESET_NORMAL_START = 450;
 int PRESET_NORMAL_TRAILMOVE = 100;
 int PRESET_NORMAL_BEOFFSET = 80;
 double PRESET_NORMAL_ATRMUL = 2.00;
+int PRESET_NORMAL_RATCHEVERY = 400;
+int PRESET_NORMAL_RATCHECK = 100;
 
 int PRESET_SWING_TP = 9000;
 int PRESET_SWING_SL = 2500;
@@ -34,6 +43,8 @@ int PRESET_SWING_START = 1000;
 int PRESET_SWING_TRAILMOVE = 300;
 int PRESET_SWING_BEOFFSET = 150;
 double PRESET_SWING_ATRMUL = 2.50;
+int PRESET_SWING_RATCHEVERY = 800;
+int PRESET_SWING_RATCHECK = 200;
 
 int MODE_NORMAL = 0;
 int MODE_TRAIL_SL = 1;
@@ -61,7 +72,7 @@ const ulong PANEL_REFRESH_MS = 250;
 int lastPanelX = 0;
 int lastPanelY = 0;
 const int PANEL_W = 380;
-const int PANEL_H = 548;
+const int PANEL_H = 648;
 const int PANEL_BORDER_PAD = 2;
 const int DRAG_X_OFF = 225;
 const int DRAG_Y_OFF = 8;
@@ -87,6 +98,8 @@ void ApplyPresetToState(const int presetId)
       TrailMove_Pontos = PRESET_SCALP_TRAILMOVE;
       BreakEvenOffset_Pontos = PRESET_SCALP_BEOFFSET;
       ATR_Mult = PRESET_SCALP_ATRMUL;
+      RatchetProfitEvery_Pontos = PRESET_SCALP_RATCHEVERY;
+      RatchetLockPts_Pontos = PRESET_SCALP_RATCHECK;
      }
    else if(presetId == 2)
      {
@@ -96,6 +109,8 @@ void ApplyPresetToState(const int presetId)
       TrailMove_Pontos = PRESET_SWING_TRAILMOVE;
       BreakEvenOffset_Pontos = PRESET_SWING_BEOFFSET;
       ATR_Mult = PRESET_SWING_ATRMUL;
+      RatchetProfitEvery_Pontos = PRESET_SWING_RATCHEVERY;
+      RatchetLockPts_Pontos = PRESET_SWING_RATCHECK;
      }
    else
      {
@@ -105,6 +120,8 @@ void ApplyPresetToState(const int presetId)
       TrailMove_Pontos = PRESET_NORMAL_TRAILMOVE;
       BreakEvenOffset_Pontos = PRESET_NORMAL_BEOFFSET;
       ATR_Mult = PRESET_NORMAL_ATRMUL;
+      RatchetProfitEvery_Pontos = PRESET_NORMAL_RATCHEVERY;
+      RatchetLockPts_Pontos = PRESET_NORMAL_RATCHECK;
      }
   }
 
