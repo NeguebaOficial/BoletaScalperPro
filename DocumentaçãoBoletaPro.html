@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Boleta Scalper Pro — documentação e visão geral. EA MT5 para execução manual com gestão avançada em XAUUSD." />
+  <meta name="author" content="Negueba Trader" />
+  <title>Boleta Scalper Pro · Documentação</title>
+  <!-- Inter (UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS (CDN) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            gold: '#D4AF37',
+            teal: '#00A79D',
+            surface: '#0b0d10',
+            elevated: '#12151c',
+            muted: '#8b92a5',
+          },
+          fontFamily: {
+            sans: ['Inter', 'Segoe UI', 'system-ui', 'sans-serif'],
+          },
+          backgroundImage: {
+            'grid-fade':
+              'linear-gradient(to right, rgba(212,175,55,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,167,157,0.05) 1px, transparent 1px)',
+          },
+        },
+      },
+    };
+  </script>
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .glass {
+        @apply bg-white/[0.04] border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl;
+      }
+      .glass-strong {
+        @apply bg-black/40 border border-white/10 backdrop-blur-2xl;
+      }
+      .text-gradient {
+        @apply bg-clip-text text-transparent bg-gradient-to-r from-gold via-amber-200 to-teal;
+      }
+      .dashboard-3d {
+        transform-style: preserve-3d;
+        transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s ease;
+      }
+      .dashboard-3d:hover {
+        transform: perspective(1100px) rotateX(4deg) rotateY(-6deg) translateZ(12px) scale(1.02);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(212, 175, 55, 0.15);
+      }
+    }
+  </style>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" integrity="sha512-7eHRwcbYkK4d9g/6tD/mhkf++eoTHwpNM9woBxtPUBWm67zeAfFC+HrIoE03A5qB82WywvMzl3mnM84/qaMQGQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" integrity="sha512-onMTRKJBKz8M1TnqqDuGBlowlHcbohbNfdfZf6XRzOwcxsr8fNg+M94xjWSSvA5WsOks5aFT6NtNbPffdBf4Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <!-- Lucide icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+</head>
+<body class="min-h-screen bg-surface text-slate-100 font-sans antialiased overflow-x-hidden">
+  <!-- Fundo dinâmico: gradiente + grelha (posição animada ao scroll) -->
+  <div id="bg-layer" class="pointer-events-none fixed inset-0 -z-10">
+    <div class="absolute inset-0 bg-gradient-to-br from-black via-surface to-[#0a1620] opacity-95"></div>
+    <div
+      id="grid-bg"
+      class="absolute inset-[-20%] opacity-40 bg-grid-fade bg-[length:48px_48px] mix-blend-screen"
+      style="transform: translate3d(0,0,0)"
+    ></div>
+    <div class="absolute -top-40 right-[-10%] h-96 w-96 rounded-full bg-teal/20 blur-[120px]"></div>
+    <div class="absolute bottom-0 left-[-10%] h-80 w-80 rounded-full bg-gold/10 blur-[100px]"></div>
+  </div>
+
+  <!-- Navegação -->
+  <header class="fixed top-0 left-0 right-0 z-50">
+    <nav class="mx-auto mt-4 max-w-6xl px-4">
+      <div class="glass-strong flex flex-wrap items-center justify-between gap-3 rounded-2xl px-4 py-3">
+        <a href="#topo" class="flex items-start gap-2.5 font-semibold tracking-tight text-white">
+          <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gold/30 to-teal/20 ring-1 ring-white/10">
+            <i data-lucide="layout-dashboard" class="h-5 w-5 text-gold"></i>
+          </span>
+          <span class="flex flex-col leading-tight">
+            <span>Boleta Scalper Pro</span>
+            <span class="mt-0.5 text-[11px] font-semibold uppercase tracking-widest text-gold">Negueba Trader</span>
+          </span>
+        </a>
+        <div class="hidden items-center gap-1 text-sm text-muted md:flex">
+          <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#visao">Visão geral</a>
+          <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#recursos">Recursos</a>
+          <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#arquitetura">Arquitetura</a>
+          <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#instalacao">Instalação</a>
+          <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#tour">Tour</a>
+        </div>
+        <a
+          href="https://github.com/NeguebaOficial/BoletaScalperPro"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-gold to-amber-500 px-4 py-2 text-sm font-semibold text-black shadow-lg shadow-gold/20 transition hover:brightness-110"
+        >
+          <i data-lucide="github" class="h-4 w-4"></i>
+          GitHub
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="topo" class="pt-28">
+    <!-- HERO -->
+    <section class="relative mx-auto max-w-6xl px-4 pb-20 pt-8 md:pb-28">
+      <div class="grid items-center gap-12 lg:grid-cols-2">
+        <div class="hero-content space-y-6">
+          <p class="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium uppercase tracking-widest text-teal">
+            <i data-lucide="sparkles" class="h-3.5 w-3.5"></i>
+            MetaTrader 5 · Expert Advisor
+          </p>
+          <h1 class="text-4xl font-extrabold tracking-tight text-white md:text-5xl lg:text-6xl">
+            <span class="text-gradient">Boleta Scalper Pro</span>
+          </h1>
+          <p class="text-sm font-medium text-white/80 md:text-base">
+            Painel de trading para MetaTrader 5 · <code class="rounded bg-white/10 px-1.5 py-0.5 font-mono text-teal">BoletaScalperPro.mq5</code>
+          </p>
+          <p class="max-w-xl text-lg font-medium text-white/90 md:text-xl">
+            Execução manual com gestão avançada para <strong class="text-gold">XAUUSD</strong> — scalping &amp; day trade
+          </p>
+          <p class="max-w-xl text-sm leading-relaxed text-muted md:text-base">
+            Boleta gráfica no MT5: um clique para operar, presets, trailing STEP/ATR, escada opcional e meta do dia em tempo real.
+          </p>
+          <div class="flex flex-wrap gap-3">
+            <a
+              href="https://github.com/NeguebaOficial/BoletaScalperPro"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-2 rounded-xl bg-teal px-5 py-3 text-sm font-semibold text-black shadow-lg shadow-teal/25 transition hover:brightness-110"
+            >
+              <i data-lucide="download" class="h-4 w-4"></i>
+              Download via GitHub
+            </a>
+            <a href="#instalacao" class="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
+              <i data-lucide="book-open" class="h-4 w-4 text-gold"></i>
+              Como instalar
+            </a>
+          </div>
+          <div class="flex flex-wrap gap-3 text-xs text-muted">
+            <span class="inline-flex items-center gap-1 rounded-lg bg-white/5 px-2 py-1"><i data-lucide="shield-check" class="h-3.5 w-3.5 text-teal"></i> Uso educacional / operacional</span>
+            <span class="inline-flex items-center gap-1 rounded-lg bg-white/5 px-2 py-1"><i data-lucide="user" class="h-3.5 w-3.5 text-gold"></i> Negueba Trader</span>
+          </div>
+          <div class="flex flex-wrap gap-2 pt-2">
+            <a href="https://www.metatrader5.com" target="_blank" rel="noopener" class="rounded-lg bg-teal/90 px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-black hover:brightness-110">MetaTrader 5</a>
+            <a href="https://www.mql5.com" target="_blank" rel="noopener" class="rounded-lg bg-[#004D40] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white hover:brightness-110">MQL5 Expert Advisor</a>
+            <span class="rounded-lg bg-[#5C6BC0] px-3 py-1 text-[10px] font-bold uppercase tracking-wide text-white">Uso educacional / operacional</span>
+          </div>
+          <!-- Assinatura (README: Copywriter · Negueba Trader) -->
+          <div class="mt-8 border-t border-gold/25 pt-6">
+            <p class="text-[11px] font-medium uppercase tracking-[0.25em] text-muted">Assinatura</p>
+            <p class="mt-2 text-2xl font-bold tracking-tight text-gold md:text-3xl">Negueba Trader</p>
+            <p class="mt-1 text-sm italic text-white/70">Copywriter</p>
+          </div>
+        </div>
+
+        <!-- Mock dashboard (representação visual) -->
+        <div class="hero-visual perspective-[1200px]">
+          <div class="hero-float">
+          <div class="dashboard-3d glass relative overflow-hidden rounded-2xl p-4 ring-1 ring-gold/20">
+            <div class="mb-3 flex items-center justify-between text-xs text-muted">
+              <span class="flex items-center gap-2 font-semibold text-white">
+                <span class="h-2 w-2 rounded-full bg-teal"></span> BoletaScalperPro · XAUUSD
+              </span>
+              <span class="rounded bg-white/5 px-2 py-0.5 font-mono text-[10px]">MOVER</span>
+            </div>
+            <div class="mb-3 grid grid-cols-3 gap-2 text-[10px]">
+              <button type="button" class="rounded-lg bg-teal/20 py-1.5 font-semibold text-teal ring-1 ring-teal/30">SCALP</button>
+              <button type="button" class="rounded-lg bg-white/5 py-1.5 text-muted">NORMAL</button>
+              <button type="button" class="rounded-lg bg-white/5 py-1.5 text-muted">SWING</button>
+            </div>
+            <div class="mb-3 grid grid-cols-2 gap-2 font-mono text-[10px] text-muted">
+              <div class="rounded-lg bg-black/40 p-2 ring-1 ring-white/5">
+                <div class="mb-1 text-[9px] uppercase tracking-wide text-gold">Lote</div>
+                <div class="text-sm font-bold text-white">0,06</div>
+              </div>
+              <div class="rounded-lg bg-black/40 p-2 ring-1 ring-white/5">
+                <div class="mb-1 text-[9px] uppercase tracking-wide text-teal">Spread</div>
+                <div class="text-sm font-bold text-white">18 pts</div>
+              </div>
+            </div>
+            <div class="mb-3 grid grid-cols-2 gap-2 text-[10px]">
+              <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 py-2 text-center font-semibold text-emerald-300">COMPRAR</div>
+              <div class="rounded-lg border border-rose-500/30 bg-rose-500/10 py-2 text-center font-semibold text-rose-300">VENDER</div>
+            </div>
+            <div class="flex items-center justify-between rounded-lg bg-black/50 px-2 py-2 text-[10px] text-muted ring-1 ring-white/5">
+              <span>Meta do dia</span>
+              <span class="font-mono text-gold">3% · barra</span>
+            </div>
+            <div class="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gold/20 blur-2xl"></div>
+          </div>
+          </div>
+          <p class="mt-3 text-center text-xs text-muted">Representação ilustrativa do painel no gráfico.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TL;DR -->
+    <section id="visao" class="reveal-section mx-auto max-w-6xl px-4 pb-16">
+      <div class="glass rounded-2xl p-6 md:p-8">
+        <h2 class="mb-4 flex items-center gap-2 text-2xl font-bold text-white">
+          <i data-lucide="bar-chart-3" class="h-6 w-6 text-teal"></i>
+          Visão geral
+        </h2>
+        <blockquote class="mb-6 border-l-4 border-gold/60 pl-4 text-muted italic">
+          <strong class="not-italic text-white">TL;DR</strong> · Painel no gráfico → ajusta risco (incl. escada STEP opcional) → clica para operar → trailing (degraus ou ATR) e meta do dia acompanhados em tempo real.
+        </blockquote>
+        <p class="mb-6 text-muted leading-relaxed">
+          <strong class="text-white">BoletaScalperPro</strong> é um <em>Expert Advisor</em> (EA) que <strong>não abre ordens sozinho</strong> com base em sinais automáticos: ele oferece uma <strong>boleta gráfica</strong> sobre o gráfico do MT5 para você <strong>comprar e vender com um clique</strong>, ajustar <strong>lote</strong>, <strong>TP/SL em pontos</strong>, <strong>presets</strong> de perfil e usar <strong>trailing</strong> em <strong>degraus (STEP TS/TT)</strong>, <strong>escada de trava opcional</strong> e modo <strong>ATR</strong>. Tudo focado no símbolo do gráfico atual (ex.: <strong class="text-gold">XAUUSD</strong> na ZeroMarkets ou outro broker MT5).
+        </p>
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-white/5 text-xs uppercase tracking-wide text-muted">
+              <tr>
+                <th class="px-4 py-3 font-medium"></th>
+                <th class="px-4 py-3 font-medium"></th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10">
+              <tr><td class="px-4 py-3 font-semibold text-gold">Tipo</td><td class="px-4 py-3 text-muted">EA de execução manual + gestão de posições abertas por ele</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-gold">Plataforma</td><td class="px-4 py-3 text-muted">MetaTrader 5</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-gold">Ficheiro principal</td><td class="px-4 py-3 font-mono text-teal"><code>BoletaScalperPro.mq5</code></td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-gold">Ideal para</td><td class="px-4 py-3 text-muted">Scalping e day trade com controle visual rápido</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ESPECIFICAÇÕES TÉCNICAS (resumo) -->
+    <section class="reveal-section mx-auto max-w-6xl px-4 pb-16">
+      <div class="grid gap-4 md:grid-cols-3">
+        <div class="glass flex flex-col items-center justify-center rounded-2xl p-6 text-center">
+          <i data-lucide="cpu" class="mb-2 h-8 w-8 text-teal"></i>
+          <p class="text-xs uppercase tracking-widest text-muted">Plataforma</p>
+          <p class="text-xl font-bold text-white">MT5</p>
+        </div>
+        <div class="glass flex flex-col items-center justify-center rounded-2xl p-6 text-center">
+          <i data-lucide="coins" class="mb-2 h-8 w-8 text-gold"></i>
+          <p class="text-xs uppercase tracking-widest text-muted">Símbolo</p>
+          <p class="text-xl font-bold text-white">XAUUSD</p>
+          <p class="mt-1 text-xs text-muted">(símbolo do gráfico atual)</p>
+        </div>
+        <div class="glass flex flex-col items-center justify-center rounded-2xl p-6 text-center">
+          <i data-lucide="mouse-pointer-click" class="mb-2 h-8 w-8 text-teal"></i>
+          <p class="text-xs uppercase tracking-widest text-muted">Execução</p>
+          <p class="text-xl font-bold text-white">Manual + Gestão</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES GRID (4 cards + stagger GSAP) -->
+    <section id="recursos" class="reveal-section mx-auto max-w-6xl px-4 pb-20">
+      <h2 class="mb-2 text-center text-3xl font-bold text-white md:text-4xl">O que este EA faz</h2>
+      <p class="mx-auto mb-10 max-w-2xl text-center text-muted">
+        <strong class="text-white">Papel do EA:</strong> <em>interface de execução</em> + <em>gestão das posições que ele próprio etiqueta</em> — não substitui a tua análise de mercado.
+      </p>
+      <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <article class="feature-card glass group rounded-2xl p-6 transition hover:border-gold/30">
+          <div class="mb-4 inline-flex rounded-xl bg-teal/15 p-3 ring-1 ring-teal/30">
+            <i data-lucide="move" class="h-6 w-6 text-teal"></i>
+          </div>
+          <h3 class="mb-2 text-lg font-bold text-white">Painel arrastável</h3>
+          <p class="text-sm text-muted">Desenha um painel escuro e moderno no gráfico (arrastável). Arrasta a barra <strong class="text-white">MOVER</strong>, a borda ou o painel.</p>
+        </article>
+        <article class="feature-card glass group rounded-2xl p-6 transition hover:border-gold/30">
+          <div class="mb-4 inline-flex rounded-xl bg-gold/15 p-3 ring-1 ring-gold/30">
+            <i data-lucide="activity" class="h-6 w-6 text-gold"></i>
+          </div>
+          <h3 class="mb-2 text-lg font-bold text-white">Gestão de risco STEP/ATR</h3>
+          <p class="text-sm text-muted">Trailing em degraus (<strong class="text-white">TS</strong> / <strong class="text-white">TT</strong>) e trailing <strong class="text-white">ATR</strong> com botões dedicados; validação ao stop/freeze level.</p>
+        </article>
+        <article class="feature-card glass group rounded-2xl p-6 transition hover:border-gold/30">
+          <div class="mb-4 inline-flex rounded-xl bg-teal/15 p-3 ring-1 ring-teal/30">
+            <i data-lucide="layers" class="h-6 w-6 text-teal"></i>
+          </div>
+          <h3 class="mb-2 text-lg font-bold text-white">Escada de trava opcional</h3>
+          <p class="text-sm text-muted">Só STEP: após o gatilho de lucro, SL pode avançar em degraus — <strong class="text-white">Lucro/degrau</strong> e <strong class="text-white">Trava/degrau</strong> (0 desliga).</p>
+        </article>
+        <article class="feature-card glass group rounded-2xl p-6 transition hover:border-gold/30">
+          <div class="mb-4 inline-flex rounded-xl bg-gold/15 p-3 ring-1 ring-gold/30">
+            <i data-lucide="target" class="h-6 w-6 text-gold"></i>
+          </div>
+          <h3 class="mb-2 text-lg font-bold text-white">Meta diária automatizada</h3>
+          <p class="text-sm text-muted">Barra e texto “falta $X” com <strong class="text-white">equity</strong> vs. saldo no início do dia civil (<code class="text-teal">MetaD_Percent</code>).</p>
+        </article>
+      </div>
+
+      <!-- Lista numerada README -->
+      <ol class="mt-12 space-y-3 rounded-2xl border border-white/10 bg-black/30 p-6 text-sm text-muted md:p-8">
+        <li><span class="font-semibold text-white">1.</span> Desenha um painel escuro e moderno no gráfico (arrastável).</li>
+        <li><span class="font-semibold text-white">2.</span> Envia ordens COMPRA/VENDA com SL e TP definidos em pontos do símbolo.</li>
+        <li><span class="font-semibold text-white">3.</span> Modos especiais nos comentários/magic: trailing em degraus (<strong>TS</strong> / <strong>TT</strong>) e trailing <strong>ATR</strong> (<strong>AT</strong>).</li>
+        <li><span class="font-semibold text-white">4.</span> Escada de trava (opcional, só STEP): após o gatilho de lucro, pode exigir que o SL avance em degraus conforme o lucro a favor desde a entrada — configurável em Lucro/degrau e Trava/degrau (qualquer um a 0 desliga a escada).</li>
+        <li><span class="font-semibold text-white">5.</span> Atualiza o painel com spread, ATR, PnL, contagem de posições, saldo e meta diária (% sobre o saldo do início do dia).</li>
+        <li><span class="font-semibold text-white">6.</span> Gerencia trailing a cada tick nas posições que correspondem aos modos da boleta.</li>
+        <li><span class="font-semibold text-white">7.</span> Fecha posições do símbolo atual: todas, só BUY ou só SELL.</li>
+      </ol>
+
+      <div class="mt-10 overflow-x-auto rounded-2xl border border-white/10 glass">
+        <table class="min-w-full text-left text-sm">
+          <thead class="bg-white/5 text-xs uppercase tracking-wide text-muted">
+            <tr>
+              <th class="px-4 py-3">Área</th>
+              <th class="px-4 py-3">O que acontece</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/10 text-muted">
+            <tr><td class="px-4 py-3 font-semibold text-white">Ordens normais</td><td class="px-4 py-3">Botões COMPRAR / VENDER com TP/SL fixos em pontos a partir do preço de entrada.</td></tr>
+            <tr><td class="px-4 py-3 font-semibold text-white">STEP TS / TT</td><td class="px-4 py-3">Trailing em degraus após o gatilho: break-even com offset, Trail Move e, se ativa, escada (Lucro/degrau + Trava/degrau). TS e TT usam a mesma lógica; mudam magic e tag no comentário (<code class="text-teal">7701</code> / <code class="text-teal">7702</code>).</td></tr>
+            <tr><td class="px-4 py-3 font-semibold text-white">TRAIL ATR</td><td class="px-4 py-3">Abre com magic específico; após lucro mínimo, move SL/TP usando ATR × multiplicador, com passo de break-even configurável.</td></tr>
+            <tr><td class="px-4 py-3 font-semibold text-white">Validação SL/TP</td><td class="px-4 py-3">Ajusta distâncias ao stop level e freeze level do símbolo para reduzir rejeições do servidor.</td></tr>
+            <tr><td class="px-4 py-3 font-semibold text-white">Meta do dia</td><td class="px-4 py-3">Usa equity vs. saldo no início do dia civil; barra de progresso e texto “falta $X”.</td></tr>
+            <tr><td class="px-4 py-3 font-semibold text-white">Performance UI</td><td class="px-4 py-3">Atualização do bloco de informações limitada em tempo (~250 ms), enquanto o trailing segue no tick.</td></tr>
+            <tr><td class="px-4 py-3 font-semibold text-white">Logs</td><td class="px-4 py-3">Botão LOG ON/OFF controla mensagens no Journal do terminal.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-6 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-muted">
+        <strong class="text-gold">Importante</strong> — O EA age sobre posições do <strong class="text-white">mesmo símbolo do gráfico</strong>. Ordens manuais sem o formato de comentário da boleta aparecem como gestão <strong class="text-white">“manual”</strong> no painel de status.
+      </p>
+    </section>
+
+    <!-- ARQUITETURA MVC -->
+    <section id="arquitetura" class="reveal-section mx-auto max-w-6xl px-4 pb-20">
+      <div class="glass rounded-2xl p-6 md:p-10">
+        <h2 class="mb-2 text-2xl font-bold text-white md:text-3xl">Arquitetura do projeto</h2>
+        <p class="mb-8 max-w-3xl text-muted">
+          <strong class="text-white">Porquê modular?</strong> Separa <strong>dados</strong> (<code class="text-teal">Data_State</code>), <strong>negócio de ordens</strong> (<code class="text-teal">Trade_Core</code>) e <strong>interface</strong> (<code class="text-teal">Panel_UI</code>) — mais fácil de ler, testar ideias e evoluir sem um único ficheiro gigante.
+        </p>
+
+        <!-- Diagrama CSS (MVC) -->
+        <div class="mb-10 grid gap-4 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+          <div class="rounded-2xl border border-teal/30 bg-gradient-to-br from-teal/10 to-transparent p-6 text-center lg:text-left">
+            <p class="text-xs font-bold uppercase tracking-widest text-teal">Model</p>
+            <p class="mt-1 font-mono text-sm text-gold">Data_State.mqh</p>
+            <p class="mt-2 text-sm text-muted">Estado global, presets, parâmetros, layout (<code class="text-white/80">PANEL_W</code> / <code class="text-white/80">PANEL_H</code>).</p>
+          </div>
+          <div class="hidden items-center justify-center lg:flex">
+            <div class="flex h-24 w-24 items-center justify-center rounded-full border border-gold/40 bg-gold/10 text-xs font-bold text-gold">MVC</div>
+          </div>
+          <div class="rounded-2xl border border-gold/30 bg-gradient-to-br from-gold/10 to-transparent p-6 text-center lg:text-right">
+            <p class="text-xs font-bold uppercase tracking-widest text-gold">View</p>
+            <p class="mt-1 font-mono text-sm text-teal">Panel_UI.mqh</p>
+            <p class="mt-2 text-sm text-muted">Cores, grelha, rótulos, botões STEP/ATR, eventos de clique e arraste.</p>
+          </div>
+        </div>
+        <div class="mx-auto max-w-xl rounded-2xl border border-white/15 bg-black/40 p-6 text-center">
+          <p class="text-xs font-bold uppercase tracking-widest text-white">Controller</p>
+          <p class="mt-1 font-mono text-sm text-teal">Trade_Core.mqh</p>
+          <p class="mt-2 text-sm text-muted"><code class="text-gold">CTrade</code>, abertura/fecho, validações, trailing STEP (degraus + escada), ATR, logs.</p>
+        </div>
+        <div class="mt-6 flex justify-center">
+          <div class="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-muted">
+            <i data-lucide="git-branch" class="h-4 w-4 text-gold"></i>
+            Orquestração: <code class="text-teal">BoletaScalperPro.mq5</code> — OnInit, OnTick, OnDeinit, OnChartEvent
+          </div>
+        </div>
+        <p class="mt-8 text-center text-sm text-muted">
+          O ficheiro <code class="text-gold">BoletaCódigoBase.mq5</code> é uma <strong class="text-white">versão monolítica de referência</strong>; o dia a dia do projeto usa a versão modular acima.
+        </p>
+
+        <div class="mt-10 overflow-x-auto rounded-xl border border-white/10">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-white/5 text-xs uppercase text-muted">
+              <tr>
+                <th class="px-4 py-3">Módulo</th>
+                <th class="px-4 py-3">Ficheiro</th>
+                <th class="px-4 py-3">Papel</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 text-muted">
+              <tr><td class="px-4 py-3 font-semibold text-teal">Model</td><td class="px-4 py-3 font-mono text-sm">Data_State.mqh</td><td class="px-4 py-3">Estado global, presets (incl. escada por preset), parâmetros numéricos, layout.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-gold">Controller</td><td class="px-4 py-3 font-mono text-sm">Trade_Core.mqh</td><td class="px-4 py-3">CTrade, abertura/fecho, validações, trailing STEP, ATR, logs.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-teal">View</td><td class="px-4 py-3 font-mono text-sm">Panel_UI.mqh</td><td class="px-4 py-3">Cores, grelha de edits, rótulos, botões, separador, eventos.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">Orquestração</td><td class="px-4 py-3 font-mono text-sm">BoletaScalperPro.mq5</td><td class="px-4 py-3">OnInit, OnTick, OnDeinit, OnChartEvent.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- INSTALAÇÃO INTERATIVA -->
+    <section id="instalacao" class="reveal-section mx-auto max-w-6xl px-4 pb-20">
+      <h2 class="mb-2 text-3xl font-bold text-white">Como instalar no MetaTrader 5</h2>
+      <p class="mb-8 text-muted">Escolhe a opção e segue os passos. Caminhos em blocos de código como no README.</p>
+
+      <div class="mb-6 flex flex-wrap gap-2">
+        <button type="button" data-install-tab="a" class="install-tab rounded-xl border border-white/15 bg-teal/20 px-4 py-2 text-sm font-semibold text-white ring-2 ring-teal/50">
+          Opção A — Já estás na pasta correta
+        </button>
+        <button type="button" data-install-tab="b" class="install-tab rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-semibold text-muted hover:bg-white/10">
+          Opção B — Clonar / copiar do GitHub
+        </button>
+      </div>
+
+      <div id="install-panel-a" class="install-panel glass rounded-2xl p-6 md:p-8">
+        <p class="mb-4 text-sm text-muted">
+          <strong class="text-white">Caminho típico (Windows):</strong>
+        </p>
+        <pre class="mb-6 overflow-x-auto rounded-xl bg-black/60 p-4 font-mono text-sm text-teal ring-1 ring-white/10"><code>%AppData%\MetaQuotes\Terminal\&lt;ID_do_terminal&gt;\MQL5\Experts\Boleta-Modular\</code></pre>
+        <p class="mb-6 text-sm text-muted">Se o projeto já está em <code class="text-gold">...\MetaQuotes\Terminal\&lt;ID&gt;\MQL5\Experts\Boleta-Modular\</code></p>
+        <div class="space-y-4">
+          <div class="install-step flex gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4" data-step="0">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/20 font-bold text-gold">1</span>
+            <div>
+              <p class="font-semibold text-white">Abre o MetaEditor</p>
+              <p class="text-sm text-muted">F4 no MT5 ou menu Ferramentas.</p>
+            </div>
+          </div>
+          <div class="install-step flex gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4" data-step="1">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/20 font-bold text-gold">2</span>
+            <div>
+              <p class="font-semibold text-white">Abre o ficheiro</p>
+              <p class="text-sm text-muted">No Navegador: <code class="text-teal">BoletaScalperPro.mq5</code></p>
+            </div>
+          </div>
+          <div class="install-step flex gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4" data-step="2">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/20 font-bold text-gold">3</span>
+            <div>
+              <p class="font-semibold text-white">Compila</p>
+              <p class="text-sm text-muted">F7 — confirma <strong class="text-white">0 erros</strong> na aba Erros.</p>
+            </div>
+          </div>
+          <div class="install-step flex gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4" data-step="3">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/20 font-bold text-gold">4</span>
+            <div>
+              <p class="font-semibold text-white">Anexa ao gráfico</p>
+              <p class="text-sm text-muted">MT5 → Navegador → Consultores Especializados → arrasta BoletaScalperPro para o gráfico (ex.: XAUUSD).</p>
+            </div>
+          </div>
+          <div class="install-step flex gap-4 rounded-xl border border-white/10 bg-white/[0.03] p-4" data-step="4">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gold/20 font-bold text-gold">5</span>
+            <div>
+              <p class="font-semibold text-white">AutoTrading</p>
+              <p class="text-sm text-muted">Permite execução algorítmica (botão verde na barra de ferramentas).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="install-panel-b" class="install-panel glass hidden rounded-2xl p-6 md:p-8">
+        <ol class="list-decimal space-y-4 pl-5 text-muted">
+          <li>
+            Clona o repositório (ou Download ZIP):
+            <a class="text-teal underline" href="https://github.com/NeguebaOficial/BoletaScalperPro" target="_blank" rel="noopener">github.com/NeguebaOficial/BoletaScalperPro</a>
+          </li>
+          <li>
+            Copia a pasta <code class="text-gold">Boleta-Modular</code> (ou os ficheiros <code class="text-gold">.mq5</code> + <code class="text-gold">.mqh</code>) para:
+            <pre class="mt-2 overflow-x-auto rounded-xl bg-black/60 p-4 font-mono text-sm text-teal ring-1 ring-white/10"><code>MQL5\Experts\Boleta-Modular\</code></pre>
+          </li>
+          <li>Repete os passos <strong class="text-white">2–5</strong> da Opção A.</li>
+        </ol>
+      </div>
+
+      <div class="mt-8 overflow-x-auto rounded-2xl border border-white/10 glass">
+        <table class="min-w-full text-left text-sm">
+          <thead class="bg-white/5 text-xs uppercase text-muted">
+            <tr><th class="px-4 py-3">Opção</th><th class="px-4 py-3">Sugestão</th></tr>
+          </thead>
+          <tbody class="divide-y divide-white/10 text-muted">
+            <tr><td class="px-4 py-3 font-semibold text-white">Permitir trading algorítmico</td><td class="px-4 py-3">Ativado</td></tr>
+            <tr><td class="px-4 py-3 font-semibold text-white">Permitir importação de DLLs</td><td class="px-4 py-3">Só se no futuro o EA usar DLL (hoje não é necessário)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-4 text-sm text-muted">
+        <strong class="text-gold">Dica</strong> — Se alterares código, volta a <strong class="text-white">compilar</strong> no MetaEditor antes de recarregar o EA no gráfico.
+      </p>
+    </section>
+
+    <!-- TOUR PELO PAINEL -->
+    <section id="tour" class="reveal-section mx-auto max-w-6xl px-4 pb-20">
+      <div class="glass rounded-2xl p-6 md:p-10">
+        <h2 class="mb-4 text-2xl font-bold text-white md:text-3xl">Tour pelo painel</h2>
+        <p class="mb-8 max-w-3xl border-l-4 border-teal/50 pl-4 text-muted italic">
+          <strong class="not-italic text-white">Mapa mental:</strong> topo = lote e presets · meio = grelha de risco (TP, SL, gatilho, ATR, trail, escada, BE) · separador · baixo = botões de ordem e fecho · rodapé = telemetria e meta do dia.
+        </p>
+
+        <h3 class="mb-3 text-lg font-bold text-gold">Cabeçalho · lote e presets</h3>
+        <ul class="mb-8 list-disc space-y-2 pl-5 text-sm text-muted">
+          <li><strong class="text-white">Título</strong> da boleta e botão <strong>LOG</strong> para ligar/desligar prints no Journal.</li>
+          <li><strong class="text-white">Presets</strong> SCALP · NORMAL · SWING — preenchem TP, SL, gatilho, trail move, BE offset, multiplicador ATR e pares Lucro/degrau + Trava/degrau (valores distintos no SWING; ver <code class="text-teal">Data_State.mqh</code>).</li>
+          <li><strong class="text-white">Lote</strong>: campo editável + atalhos 0,03 / 0,06 / 0,09 e + / −.</li>
+        </ul>
+
+        <h3 class="mb-3 text-lg font-bold text-gold">Parâmetros de ordem · risco, ATR e escada</h3>
+        <p class="mb-4 text-sm text-muted">Os rótulos no gráfico usam tipografia em negrito onde aplicável; os edits numéricos da grelha partilham a mesma largura (referência: campo BE Offset).</p>
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-white/5 text-xs uppercase text-muted">
+              <tr><th class="px-4 py-3">Rótulo no painel</th><th class="px-4 py-3">Função</th></tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 text-muted">
+              <tr><td class="px-4 py-3 font-semibold text-white">Take Profit</td><td class="px-4 py-3">TP inicial em pontos.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">Stop Loss</td><td class="px-4 py-3">SL inicial em pontos.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">Gatilho</td><td class="px-4 py-3">Lucro mínimo em pontos para ativar BE / trailing nos modos geridos (Start Lucro no código).</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">Periodo ATR</td><td class="px-4 py-3">Período do iATR usado no TRAIL ATR; ao alterar, o handle é recriado.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">ATR Mult</td><td class="px-4 py-3">Multiplicador do ATR no modo TRAIL ATR.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">Trail Move</td><td class="px-4 py-3">Passo em pontos do SL após o BE nos modos STEP TS/TT (complementa a escada, se ativa).</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">Lucro/Degrau</td><td class="px-4 py-3">Só STEP: a cada N pontos de lucro a favor desde a entrada, sobe um degrau da escada.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">Trava/Degrau</td><td class="px-4 py-3">Só STEP: por cada degrau de lucro contabilizado, o SL exigido avança este número de pontos a favor desde o preço de entrada.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">BE Offset</td><td class="px-4 py-3">Offset do break-even em pontos.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-4 text-sm text-muted">
+          <strong class="text-white">Escada STEP:</strong> só é aplicada se Lucro/degrau e Trava/degrau forem <strong>ambos</strong> maiores que zero. Se <strong>qualquer um</strong> for 0, a escada não corre (nos STEP continua BE + Trail Move).
+        </p>
+        <p class="mt-4 text-sm text-muted">Entre esta grelha e os botões COMPRAR / VENDER existe um <strong class="text-white">separador horizontal</strong> e espaço em branco para ler o painel em dois blocos: parâmetros vs ações.</p>
+
+        <h3 class="mb-3 mt-10 text-lg font-bold text-gold">Ações principais · entrar e sair</h3>
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-white/5 text-xs uppercase text-muted">
+              <tr><th class="px-4 py-3">Botão</th><th class="px-4 py-3">Ação</th></tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 text-muted">
+              <tr><td class="px-4 py-3 font-semibold text-white">COMPRAR / VENDER</td><td class="px-4 py-3">Ordem com SL/TP fixos (modo normal).</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">TRAIL ATR BUY / SELL</td><td class="px-4 py-3">Abertura com gestão ATR.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">STEP TS BUY / SELL</td><td class="px-4 py-3">Abertura com trailing em degraus, magic TS (7701).</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">STEP TT BUY / SELL</td><td class="px-4 py-3">Mesma lógica que TS, magic TT (7702).</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">FECHAR BUY / SELL</td><td class="px-4 py-3">Fecha só o lado indicado neste símbolo.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">FECHAR TODAS</td><td class="px-4 py-3">Fecha todas as posições deste símbolo no gráfico atual.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="mb-3 mt-10 text-lg font-bold text-gold">Zona MOVER · arrastar o painel</h3>
+        <ul class="list-disc pl-5 text-sm text-muted">
+          <li>Arrasta a <strong class="text-white">barra “MOVER”</strong>, a <strong class="text-white">borda</strong> ou o <strong class="text-white">painel</strong> para reposicionar toda a interface.</li>
+        </ul>
+
+        <h3 class="mb-3 mt-10 text-lg font-bold text-gold">Bloco INFO · telemetria e meta</h3>
+        <ul class="list-disc space-y-2 pl-5 text-sm text-muted">
+          <li><strong class="text-white">Spread</strong> (pts) e leitura do <strong>ATR</strong>.</li>
+          <li><strong class="text-white">PnL</strong> flutuante do símbolo e total da conta.</li>
+          <li><strong class="text-white">Open</strong> — quantidade de BUY / SELL abertos no símbolo.</li>
+          <li><strong class="text-white">Saldo</strong> e <strong>Meta 3%</strong> (percentual configurável em código: MetaD_Percent).</li>
+          <li><strong class="text-white">Barra</strong> de progresso da meta do dia.</li>
+          <li><strong class="text-white">Gestão</strong> — estado resumido (ex.: espera ATR, BE, step, mult, manual).</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- VALORES PADRÃO -->
+    <section id="defaults" class="reveal-section mx-auto max-w-6xl px-4 pb-20">
+      <div class="glass rounded-2xl p-6 md:p-8">
+        <h2 class="mb-4 text-2xl font-bold text-white">Valores padrão scalper XAUUSD</h2>
+        <p class="mb-6 text-sm text-muted">
+          Estes são os defaults da linha SCALP (espelhados no preset SCALP) em <code class="text-teal">Data_State.mqh</code>. NORMAL e SWING sobrescrevem TP/SL, gatilho, trail, BE, ATR mult e pares da escada — vê as constantes PRESET_* no mesmo ficheiro.
+        </p>
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-white/5 text-xs uppercase text-muted">
+              <tr><th class="px-4 py-3">Campo (UI / variável)</th><th class="px-4 py-3 text-right">Valor default</th></tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 text-muted">
+              <tr><td class="px-4 py-3">Lote inicial (Lotes)</td><td class="px-4 py-3 text-right font-mono text-teal">0,01</td></tr>
+              <tr><td class="px-4 py-3">Take Profit (TP_Pontos)</td><td class="px-4 py-3 text-right font-mono text-teal">1 000 pts</td></tr>
+              <tr><td class="px-4 py-3">Stop Loss (SL_Pontos)</td><td class="px-4 py-3 text-right font-mono text-teal">1 200 pts</td></tr>
+              <tr><td class="px-4 py-3">Gatilho / Start Lucro (TrailStep_Pontos)</td><td class="px-4 py-3 text-right font-mono text-teal">180 pts</td></tr>
+              <tr><td class="px-4 py-3">ATR Period (ATR_Period)</td><td class="px-4 py-3 text-right font-mono text-teal">7</td></tr>
+              <tr><td class="px-4 py-3">ATR Mult (ATR_Mult)</td><td class="px-4 py-3 text-right font-mono text-teal">1,20</td></tr>
+              <tr><td class="px-4 py-3">Trail Move (TrailMove_Pontos)</td><td class="px-4 py-3 text-right font-mono text-teal">120 pts</td></tr>
+              <tr><td class="px-4 py-3">Lucro/degrau (RatchetProfitEvery_Pontos)</td><td class="px-4 py-3 text-right font-mono text-teal">400 pts (0 = escada off)</td></tr>
+              <tr><td class="px-4 py-3">Trava/degrau (RatchetLockPts_Pontos)</td><td class="px-4 py-3 text-right font-mono text-teal">100 pts</td></tr>
+              <tr><td class="px-4 py-3">BE Offset (BreakEvenOffset_Pontos)</td><td class="px-4 py-3 text-right font-mono text-teal">100 pts</td></tr>
+              <tr><td class="px-4 py-3">Altura do painel (PANEL_H)</td><td class="px-4 py-3 text-right font-mono text-teal">648 px</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-6 text-sm text-muted">
+          Ajusta sempre ao <strong class="text-white">teu risco</strong>, ao <strong class="text-white">contrato do ouro</strong> no broker e ao <strong class="text-white">stop level</strong> mínimo. Depois de alterar o código, <strong class="text-gold">recompila</strong> e volta a anexar o EA (ou remove objetos antigos) para o layout do painel refletir mudanças de UI.
+        </p>
+      </div>
+    </section>
+
+    <!-- FLUXO + REPO -->
+    <section class="reveal-section mx-auto max-w-6xl px-4 pb-20">
+      <div class="grid gap-8 lg:grid-cols-2">
+        <div class="glass rounded-2xl p-6 md:p-8">
+          <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-white">
+            <i data-lucide="play-circle" class="h-6 w-6 text-teal"></i>
+            Fluxo rápido de uso
+          </h2>
+          <ol class="list-decimal space-y-3 pl-5 text-sm text-muted">
+            <li>Anexa o EA no gráfico do ativo (ex.: XAUUSD).</li>
+            <li>Confere lote, TP/SL, Gatilho, Trail Move, BE e, se fores usar STEP, Lucro/Degrau e Trava/Degrau (ou carrega um preset).</li>
+            <li>Usa COMPRAR / VENDER (fixo), STEP TS/TT (degraus + escada opcional) ou TRAIL ATR conforme a tua leitura de mercado.</li>
+            <li>Acompanha INFO e a meta do dia.</li>
+            <li>Usa FECHAR se precisar sair rápido do símbolo.</li>
+          </ol>
+        </div>
+        <div class="glass rounded-2xl p-6 md:p-8">
+          <h2 class="mb-4 flex items-center gap-2 text-xl font-bold text-white">
+            <i data-lucide="link" class="h-6 w-6 text-gold"></i>
+            Repositório
+          </h2>
+          <p class="mb-4 text-sm text-muted">
+            GitHub:
+            <a class="text-teal underline" href="https://github.com/NeguebaOficial/BoletaScalperPro" target="_blank" rel="noopener">github.com/NeguebaOficial/BoletaScalperPro</a>
+          </p>
+          <pre class="overflow-x-auto rounded-xl bg-black/60 p-4 font-mono text-sm text-gold ring-1 ring-white/10"><code>git clone https://github.com/NeguebaOficial/BoletaScalperPro.git</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="reveal-section border-t border-white/10 bg-black/40 py-14">
+    <div class="mx-auto max-w-6xl px-4">
+      <div class="flex flex-col items-center justify-between gap-8 md:flex-row md:items-start">
+        <div>
+          <p class="text-lg font-bold text-white">Boleta Scalper Pro</p>
+          <p class="mt-1 text-sm text-muted">MetaTrader 5</p>
+          <div class="mt-5 inline-block rounded-xl border border-gold/30 bg-gold/5 px-4 py-3">
+            <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-gold/80">Autor</p>
+            <p class="mt-1 text-xl font-bold text-gold">Negueba Trader</p>
+            <p class="text-xs text-muted">Copywriter</p>
+          </div>
+          <p class="mt-4 max-w-md text-xs text-muted italic">
+            Boleta modular · execução com um clique · STEP / ATR · escada opcional · meta do dia
+          </p>
+        </div>
+        <div class="flex gap-3">
+          <a
+            href="https://github.com/NeguebaOficial/BoletaScalperPro"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="glass inline-flex h-11 w-11 items-center justify-center rounded-xl text-white transition hover:border-gold/40"
+            aria-label="GitHub"
+          >
+            <i data-lucide="github" class="h-5 w-5"></i>
+          </a>
+          <a
+            href="https://www.metatrader5.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="glass inline-flex h-11 w-11 items-center justify-center rounded-xl text-white transition hover:border-teal/40"
+            aria-label="MetaTrader 5"
+          >
+            <i data-lucide="line-chart" class="h-5 w-5 text-teal"></i>
+          </a>
+          <a
+            href="https://www.mql5.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="glass inline-flex h-11 w-11 items-center justify-center rounded-xl text-white transition hover:border-gold/40"
+            aria-label="MQL5"
+          >
+            <i data-lucide="code-2" class="h-5 w-5 text-gold"></i>
+          </a>
+        </div>
+      </div>
+      <div class="mt-10 rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6 text-center text-sm text-muted">
+        <p class="font-semibold text-gold">Aviso legal — Risk disclaimer</p>
+        <p class="mt-3 leading-relaxed">
+          Trading envolve <strong class="text-white">risco de perda de capital</strong>. Este software é uma <strong class="text-white">ferramenta operacional</strong>; não constitui aconselhamento financeiro. Testa em <strong class="text-white">conta demo</strong> antes de usar dinheiro real e garante que compreendes cada parâmetro e o funcionamento do teu broker.
+        </p>
+      </div>
+      <p class="mt-10 text-center text-lg font-semibold tracking-wide text-gold">Negueba Trader</p>
+      <p class="mt-2 text-center text-xs text-muted/80">Documentação a partir do README · projeto Boleta-Modular</p>
+    </div>
+  </footer>
+
+  <script>
+    /* Ícones Lucide */
+    lucide.createIcons();
+
+    /* Tabs instalação */
+    document.querySelectorAll('.install-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var tab = btn.getAttribute('data-install-tab');
+        document.querySelectorAll('.install-tab').forEach(function (b) {
+          b.classList.remove('bg-teal/20', 'text-white', 'ring-2', 'ring-teal/50');
+          b.classList.add('bg-white/5', 'text-muted');
+        });
+        btn.classList.add('bg-teal/20', 'text-white', 'ring-2', 'ring-teal/50');
+        btn.classList.remove('bg-white/5', 'text-muted');
+        document.getElementById('install-panel-a').classList.toggle('hidden', tab !== 'a');
+        document.getElementById('install-panel-b').classList.toggle('hidden', tab !== 'b');
+      });
+    });
+
+    /* GSAP + ScrollTrigger: revelar secções, stagger cards, fundo ao scroll */
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.utils.toArray('.reveal-section').forEach(function (el) {
+      gsap.fromTo(
+        el,
+        { opacity: 0, y: 48 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.85,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: el,
+            start: 'top 88%',
+            toggleActions: 'play none none reverse',
+          },
+        }
+      );
+    });
+
+    gsap.from('.feature-card', {
+      opacity: 0,
+      y: 36,
+      duration: 0.7,
+      stagger: 0.12,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: '#recursos',
+        start: 'top 80%',
+      },
+    });
+
+    gsap.from('.hero-content > *', {
+      opacity: 0,
+      y: 28,
+      duration: 0.75,
+      stagger: 0.1,
+      ease: 'power3.out',
+      delay: 0.05,
+    });
+
+    gsap.from('.hero-visual', {
+      opacity: 0,
+      scale: 0.94,
+      duration: 1,
+      ease: 'power3.out',
+      delay: 0.2,
+    });
+
+    /* Flutuação suave no wrapper — não interfere no hover 3D do .dashboard-3d */
+    gsap.to('.hero-float', {
+      y: 8,
+      repeat: -1,
+      yoyo: true,
+      duration: 3.5,
+      ease: 'sine.inOut',
+    });
+
+    /* Fundo: desloca grelha com scroll */
+    gsap.to('#grid-bg', {
+      backgroundPosition: '80px 120px',
+      ease: 'none',
+      scrollTrigger: {
+        scrub: 1,
+        start: 'top top',
+        end: 'max',
+      },
+    });
+
+    /* Opcional: parallax suave no blur orbs */
+    gsap.to('#bg-layer .rounded-full', {
+      y: 80,
+      ease: 'none',
+      scrollTrigger: { scrub: 1.5, start: 'top top', end: 'max' },
+    });
+  </script>
+</body>
+</html>
