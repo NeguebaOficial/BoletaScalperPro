@@ -19,22 +19,35 @@ color COR_SELL_SOFT = C'220,90,90';
 color COR_WARN = C'255,175,60';
 color COR_NEUTRO = (color)0x3A3A3A;
 color COR_AZUL = (color)0x2979FF;
+// Bloco de parâmetros (grelha 3×3)
+color COR_PARAM_SURFACE = (color)0x272C33;
+color COR_PARAM_EDGE = (color)0x2D3641;
+color COR_PARAM_INPUT_BG = (color)0x1E232A;
+color COR_PARAM_INPUT_BORDER = (color)0x3E4A5A;
+color COR_PARAM_TITLE = (color)0xA7BBC9;
+color COR_SECTION_SURFACE = (color)0x252C34;
+color COR_SECTION_EDGE = (color)0x2B3541;
 
 #define BTN_FONT_REGULAR "Segoe UI"
 #define BTN_FONT_BOLD "Arial Bold"
 
-string objetos[62] = {
+string objetos[69] = {
    "painelBorder", "painel", "lblTitulo", "lblLote", "editLote", "btnLot03", "btnLot06", "btnLot09",
-   "btnLotPlus", "btnLotMinus", "lblTP", "editTP", "lblSL", "editSL",
+   "btnLotPlus", "btnLotMinus",
+   "headBlockBg",
+   "paramBlockBg", "lblParamSecTitle",
+   "lblTP", "editTP", "lblSL", "editSL",
    "lblTrailStep", "editTrailStep",
    "btnPresetScalp", "btnPresetNormal", "btnPresetSwing",
+   "tradeBlockBg", "lblTradeModes",
    "btnBuy", "btnSell",
    "btnBuyATR", "btnSellATR",
    "btnBuyTrailTs", "btnSellTrailTs", "btnBuyTrailTt", "btnSellTrailTt",
    "lblATRPeriod", "editATRPeriod", "lblATRMul", "editATRMul",
    "lblTrailMove", "editTrailMove", "lblBEOffset", "editBEOffset",
    "lblRatchetEvery", "editRatchetEvery", "lblRatchetLock", "editRatchetLock",
-   "lblSepParams",
+   "closeBlockBg", "lblCloseModes",
+   "paramSepLine",
    "btnLogs",
    "btnCloseAll", "btnCloseBuys", "btnCloseSells",
    "lblInfoTitulo",
@@ -219,6 +232,46 @@ void CreateEdit(string name, int x, int y, int w, int h, string text)
    ObjectSetInteger(0, name, OBJPROP_ZORDER, 10);
   }
 
+void CreateEditParam(string name, int x, int y, int w, int h, string text)
+  {
+   CreateEdit(name, x, y, w, h, text);
+   ObjectSetInteger(0, name, OBJPROP_BGCOLOR, COR_PARAM_INPUT_BG);
+   ObjectSetInteger(0, name, OBJPROP_BORDER_COLOR, COR_PARAM_INPUT_BORDER);
+   ObjectSetInteger(0, name, OBJPROP_COLOR, clrWhite);
+  }
+
+void CreateParamSurface(string name, int x, int y, int w, int h)
+  {
+   ObjectCreate(0, name, OBJ_RECTANGLE_LABEL, 0, 0, 0);
+   ObjectSetInteger(0, name, OBJPROP_XDISTANCE, x);
+   ObjectSetInteger(0, name, OBJPROP_YDISTANCE, y);
+   ObjectSetInteger(0, name, OBJPROP_XSIZE, w);
+   ObjectSetInteger(0, name, OBJPROP_YSIZE, h);
+   ObjectSetInteger(0, name, OBJPROP_BGCOLOR, COR_PARAM_SURFACE);
+   ObjectSetInteger(0, name, OBJPROP_COLOR, COR_PARAM_EDGE);
+   ObjectSetInteger(0, name, OBJPROP_BORDER_TYPE, BORDER_FLAT);
+   ObjectSetInteger(0, name, OBJPROP_WIDTH, 1);
+   ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
+   ObjectSetInteger(0, name, OBJPROP_BACK, true);
+   ObjectSetInteger(0, name, OBJPROP_ZORDER, 2);
+  }
+
+void CreateSectionSurface(string name, int x, int y, int w, int h)
+  {
+   ObjectCreate(0, name, OBJ_RECTANGLE_LABEL, 0, 0, 0);
+   ObjectSetInteger(0, name, OBJPROP_XDISTANCE, x);
+   ObjectSetInteger(0, name, OBJPROP_YDISTANCE, y);
+   ObjectSetInteger(0, name, OBJPROP_XSIZE, w);
+   ObjectSetInteger(0, name, OBJPROP_YSIZE, h);
+   ObjectSetInteger(0, name, OBJPROP_BGCOLOR, COR_SECTION_SURFACE);
+   ObjectSetInteger(0, name, OBJPROP_COLOR, COR_SECTION_EDGE);
+   ObjectSetInteger(0, name, OBJPROP_BORDER_TYPE, BORDER_FLAT);
+   ObjectSetInteger(0, name, OBJPROP_WIDTH, 1);
+   ObjectSetInteger(0, name, OBJPROP_SELECTABLE, false);
+   ObjectSetInteger(0, name, OBJPROP_BACK, true);
+   ObjectSetInteger(0, name, OBJPROP_ZORDER, 2);
+  }
+
 void CreateLabel(string name, int x, int y, string text, color cor, int size, bool boldFont = false)
   {
    ObjectCreate(0, name, OBJ_LABEL, 0, 0, 0);
@@ -230,7 +283,7 @@ void CreateLabel(string name, int x, int y, string text, color cor, int size, bo
    string fontName = "Segoe UI Semilight";
    if(boldFont)
       fontName = BTN_FONT_BOLD;
-   else if(cor == COR_BUY || cor == COR_SELL || cor == COR_BUY_SOFT || cor == COR_SELL_SOFT || cor == COR_LABEL || cor == COR_TEXTO || cor == COR_WARN)
+   else if(cor == COR_BUY || cor == COR_SELL || cor == COR_BUY_SOFT || cor == COR_SELL_SOFT || cor == COR_LABEL || cor == COR_TEXTO || cor == COR_WARN || cor == COR_PARAM_TITLE)
       fontName = "Segoe UI Semibold";
    ObjectSetString(0, name, OBJPROP_FONT, fontName);
    ObjectSetInteger(0, name, OBJPROP_ZORDER, 10);
@@ -270,6 +323,9 @@ void Panel_InitBoleta(const int x, const int y)
    CreateButton("btnLogs", x + 300, y + 8, 70, 22, LogsButtonText(), LogsButtonColor(), false);
    SetTooltip("btnLogs", "Liga/desliga logs no Journal (erros e eventos da boleta).");
 
+   CreateSectionSurface("headBlockBg", x + 14, y + 32, PANEL_W - 28, 58);
+   SetTooltip("headBlockBg", "Configuração de lote e presets rápidos.");
+
    CreateLabel("lblLote", x + 20, y + 40, "Lote", COR_LABEL, 9);
    CreateEdit("editLote", x + 20, y + 60, 80, 28, DoubleToString(Lotes, 2));
    SetTooltip("lblLote", "Volume da ordem (lotes). Ex: 0.01. Ajuste conforme seu risco.");
@@ -297,54 +353,79 @@ void Panel_InitBoleta(const int x, const int y)
    CreateButton("btnLotMinus", x + 330, y + 60, 30, 28, "-", COR_SELL, true);
    SetTooltip("btnLotMinus", "Diminui o lote em -0.01 (mín. 0.01)");
 
-   CreateLabel("lblTP", x + 20, y + 100, "Take Profit", COR_LABEL, 9, true);
-   CreateEdit("editTP", x + 20, y + 120, 70, 28, IntegerToString(TP_Pontos));
+   const int PARAM_BLK_X = 14;
+   const int PARAM_BLK_Y = 92;
+   const int PARAM_BLK_W = PANEL_W - 28;
+   const int PARAM_BLK_H = 162;
+   const int PR_L1 = 110;
+   const int PR_E1 = 127;
+   const int PR_L2 = 158;
+   const int PR_E2 = 175;
+   const int PR_L3 = 206;
+   const int PR_E3 = 223;
+   const int PR_EDH = 28;
+
+   CreateParamSurface("paramBlockBg", x + PARAM_BLK_X, y + PARAM_BLK_Y, PARAM_BLK_W, PARAM_BLK_H);
+   SetTooltip("paramBlockBg", "Parâmetros de risco e gestão em pontos (XAUUSD).");
+
+   CreateLabel("lblParamSecTitle", x + 22, y + 98, "Alvos · gatilho · trailing · escada", COR_TEXTO_MUTE, 8, false);
+   SetTooltip("lblParamSecTitle", "Grelha de pontos: TP/SL, gatilho, ATR, trail, escada STEP e BE.");
+
+   CreateLabel("lblTP", x + 20, y + PR_L1, "Take Profit", COR_PARAM_TITLE, 8, true);
+   CreateEditParam("editTP", x + 20, y + PR_E1, 70, PR_EDH, IntegerToString(TP_Pontos));
    SetTooltip("lblTP", "TP inicial em pontos (pts). Digits=2: 100 pts = $1.00 no XAUUSD.");
    SetTooltip("editTP", "TP inicial em pontos (pts). Digits=2: 100 pts = $1.00 no XAUUSD.");
 
-   CreateLabel("lblSL", x + 170, y + 100, "Stop Loss", COR_LABEL, 9, true);
-   CreateEdit("editSL", x + 170, y + 120, 70, 28, IntegerToString(SL_Pontos));
+   CreateLabel("lblSL", x + 170, y + PR_L1, "Stop Loss", COR_PARAM_TITLE, 8, true);
+   CreateEditParam("editSL", x + 170, y + PR_E1, 70, PR_EDH, IntegerToString(SL_Pontos));
    SetTooltip("lblSL", "SL inicial em pontos (pts). Deve ser maior que o spread e respeitar o stop level.");
    SetTooltip("editSL", "SL inicial em pontos (pts). Deve ser maior que o spread e respeitar o stop level.");
 
-   CreateLabel("lblTrailStep", x + 290, y + 100, "Gatilho", COR_LABEL, 9, true);
-   CreateEdit("editTrailStep", x + 290, y + 120, 70, 28, IntegerToString(TrailStep_Pontos));
+   CreateLabel("lblTrailStep", x + 290, y + PR_L1, "Gatilho", COR_PARAM_TITLE, 8, true);
+   CreateEditParam("editTrailStep", x + 290, y + PR_E1, 70, PR_EDH, IntegerToString(TrailStep_Pontos));
    SetTooltip("lblTrailStep", "Gatilho (lucro em pts) para BE/ATR e para STEP TS/TT. Antes disso não move SL/TP.");
    SetTooltip("editTrailStep", "Gatilho (lucro em pts) para BE/ATR e para STEP TS/TT. Antes disso não move SL/TP.");
 
-   CreateLabel("lblATRPeriod", x + 20, y + 160, "Periodo ATR", COR_LABEL, 9, true);
-   CreateEdit("editATRPeriod", x + 20, y + 178, 70, 24, IntegerToString(ATR_Period));
+   CreateLabel("lblATRPeriod", x + 20, y + PR_L2, "Periodo ATR", COR_PARAM_TITLE, 8, true);
+   CreateEditParam("editATRPeriod", x + 20, y + PR_E2, 70, PR_EDH, IntegerToString(ATR_Period));
    SetTooltip("lblATRPeriod", "Período do ATR usado no TRAIL ATR. Ex: 14. Quanto maior, mais 'lento' o trailing.");
    SetTooltip("editATRPeriod", "Período do ATR usado no TRAIL ATR. Ex: 14. Quanto maior, mais 'lento' o trailing.");
 
-   CreateLabel("lblATRMul", x + 170, y + 160, "ATR Mult", COR_LABEL, 9, true);
-   CreateEdit("editATRMul", x + 170, y + 178, 70, 24, DoubleToString(ATR_Mult, 2));
+   CreateLabel("lblATRMul", x + 170, y + PR_L2, "ATR Mult", COR_PARAM_TITLE, 8, true);
+   CreateEditParam("editATRMul", x + 170, y + PR_E2, 70, PR_EDH, DoubleToString(ATR_Mult, 2));
    SetTooltip("lblATRMul", "Multiplicador do ATR no TRAIL ATR. Maior = SL/TP mais distantes (mais folga).");
    SetTooltip("editATRMul", "Multiplicador do ATR no TRAIL ATR. Maior = SL/TP mais distantes (mais folga).");
 
-   CreateLabel("lblTrailMove", x + 290, y + 160, "Trail Move", COR_LABEL, 9, true);
-   CreateEdit("editTrailMove", x + 290, y + 178, 70, 24, IntegerToString(TrailMove_Pontos));
+   CreateLabel("lblTrailMove", x + 290, y + PR_L2, "Trail Move", COR_PARAM_TITLE, 8, true);
+   CreateEditParam("editTrailMove", x + 290, y + PR_E2, 70, PR_EDH, IntegerToString(TrailMove_Pontos));
    SetTooltip("lblTrailMove", "Passo do SL após o BE (TS/TT). Complementa a escada Lucro/Trava, se ela estiver ativa.");
    SetTooltip("editTrailMove", "Passo do SL após o BE (TS/TT). Complementa a escada Lucro/Trava, se ela estiver ativa.");
 
-   CreateLabel("lblRatchetEvery", x + 20, y + 206, "Lucro/Degrau", COR_LABEL, 9, true);
-   CreateEdit("editRatchetEvery", x + 20, y + 224, 70, 24, IntegerToString(RatchetProfitEvery_Pontos));
+   CreateLabel("lblRatchetEvery", x + 20, y + PR_L3, "Lucro/Degrau", COR_PARAM_TITLE, 8, true);
+   CreateEditParam("editRatchetEvery", x + 20, y + PR_E3, 70, PR_EDH, IntegerToString(RatchetProfitEvery_Pontos));
    SetTooltip("lblRatchetEvery", "STEP TS/TT: a cada X pts de lucro a favor (desde a entrada), sobe um degrau da escada. 0 = desliga escada.");
    SetTooltip("editRatchetEvery", "STEP TS/TT: a cada X pts de lucro a favor (desde a entrada), sobe um degrau. 0 = desliga.");
 
-   CreateLabel("lblRatchetLock", x + 170, y + 206, "Trava/Degrau", COR_LABEL, 9, true);
-   CreateEdit("editRatchetLock", x + 170, y + 224, 70, 24, IntegerToString(RatchetLockPts_Pontos));
+   CreateLabel("lblRatchetLock", x + 170, y + PR_L3, "Trava/Degrau", COR_PARAM_TITLE, 8, true);
+   CreateEditParam("editRatchetLock", x + 170, y + PR_E3, 70, PR_EDH, IntegerToString(RatchetLockPts_Pontos));
    SetTooltip("lblRatchetLock", "STEP TS/TT: cada degrau puxa o SL N pts a favor a partir da entrada (compra: acima; venda: abaixo).");
    SetTooltip("editRatchetLock", "STEP TS/TT: pts travados por degrau desde a entrada. Use com Lucro/degrau > 0.");
 
-   CreateLabel("lblBEOffset", x + 290, y + 206, "BE Offset", COR_LABEL, 9, true);
-   CreateEdit("editBEOffset", x + 290, y + 224, 70, 24, IntegerToString(BreakEvenOffset_Pontos));
+   CreateLabel("lblBEOffset", x + 290, y + PR_L3, "BE Offset", COR_PARAM_TITLE, 8, true);
+   CreateEditParam("editBEOffset", x + 290, y + PR_E3, 70, PR_EDH, IntegerToString(BreakEvenOffset_Pontos));
    SetTooltip("lblBEOffset", "Offset do Break-Even em pts. 0 = SL no preço de entrada; >0 trava lucro no BE.");
    SetTooltip("editBEOffset", "Offset do Break-Even em pts. 0 = SL no preço de entrada; >0 trava lucro no BE.");
 
-   CreateLabel("lblSepParams", x + 20, y + 252,
-               "────────────────────────────────────────────────────────────────────────────────", COR_NEUTRO, 8);
-   SetTooltip("lblSepParams", "Separa parâmetros de risco das ações de ordem.");
+   CreateRectangle("paramSepLine", x + 18, y + 258, PANEL_W - 36, 2, COR_PARAM_EDGE);
+   ObjectSetInteger(0, "paramSepLine", OBJPROP_BACK, false);
+   ObjectSetInteger(0, "paramSepLine", OBJPROP_ZORDER, 4);
+   ObjectSetInteger(0, "paramSepLine", OBJPROP_SELECTABLE, false);
+   SetTooltip("paramSepLine", "Separa parâmetros das ações de ordem.");
+
+   CreateSectionSurface("tradeBlockBg", x + 14, y + 260, PANEL_W - 28, 174);
+   SetTooltip("tradeBlockBg", "Entradas por modo: normal, ATR e STEP.");
+   CreateLabel("lblTradeModes", x + 22, y + 262, "Modos de entrada", COR_PARAM_TITLE, 8);
+   SetTooltip("lblTradeModes", "Escolha entre ordem fixa, ATR ou STEP.");
 
    CreateButton("btnBuy", x + 20, y + 278, 160, 40, "COMPRAR", COR_BUY, true);
    SetTooltip("btnBuy", "Abre COMPRA com SL/TP fixos");
@@ -365,6 +446,11 @@ void Panel_InitBoleta(const int x, const int y)
    SetTooltip("btnBuyTrailTt", "COMPRA STEP TT: mesma lógica do TS; magic TT + escada opcional.");
    CreateButton("btnSellTrailTt", x + 200, y + 398, 160, 30, "STEP TT SELL", COR_SELL, true);
    SetTooltip("btnSellTrailTt", "VENDA STEP TT: mesma lógica do TS; magic TT + escada opcional.");
+
+   CreateSectionSurface("closeBlockBg", x + 14, y + 420, PANEL_W - 28, 94);
+   SetTooltip("closeBlockBg", "Controles de saída e encerramento rápido.");
+   CreateLabel("lblCloseModes", x + 22, y + 428, "Saída de posições", COR_PARAM_TITLE, 8);
+   SetTooltip("lblCloseModes", "Fechamento parcial por lado ou total do símbolo.");
 
    CreateButton("btnCloseBuys", x + 20, y + 440, 160, 32, "FECHAR BUY", COR_BUY, true);
    SetTooltip("btnCloseBuys", "Fecha posições BUY apenas deste símbolo (gráfico atual).");
