@@ -12,7 +12,7 @@
 
 *Copywriter · **Negueba Trader***
 
-[Visão geral](#visão-geral) · [O que faz](#o-que-este-ea-faz) · [Instalação](#como-instalar-no-metatrader-5) · [Tour](#tour-pelo-painel) · [Arquitetura](#arquitetura-do-projeto) · [Defaults](#valores-padrão-scalper-xauusd) · [Fluxo](#fluxo-rápido-de-uso) · [Repo](#repositório)
+[Visão geral](#visão-geral) · [O que faz](#o-que-este-ea-faz) · [Instalação](#como-instalar-no-metatrader-5) · [Tour](#tour-pelo-painel) · [Botões de gestão](#guia-didático-botões-trail-atr-e-step-tstt-xauusd) · [Arquitetura](#arquitetura-do-projeto) · [Defaults](#valores-padrão-scalper-xauusd) · [Fluxo](#fluxo-rápido-de-uso) · [Repo](#repositório)
 
 </div>
 
@@ -158,6 +158,67 @@ Entre esta grelha e os botões **COMPRAR / VENDER** existe um **separador horizo
 | **STEP TT BUY / SELL** | Mesma lógica de degraus que **TS**, magic **TT** (`7702`) — útil para distinguir no histórico ou relatórios. |
 | **FECHAR BUY / SELL** | Fecha só o lado indicado neste símbolo. |
 | **FECHAR TODAS** | Fecha todas as posições **deste símbolo** no gráfico atual. |
+
+### Guia didático: botões TRAIL ATR e STEP TS/TT (XAUUSD)
+
+A boleta foi pensada para operar **XAUUSD** no MT5 com leitura em **pontos** do símbolo (os mesmos valores que vês nos campos **TP**, **SL** e **Gatilho**). Para mentalizar risco em scalping/day trade:
+
+- Com **0,01 lote**, uma variação de preço de **100 pontos** no ouro (na convenção usual de 2 casas decimais no gráfico) corresponde, em termos simples, a cerca de **1 dólar** de resultado por **100 pontos** a favor ou contra — útil para traduzir “180 pts de gatilho” ou “120 pts de trail” em dinheiro na cabeça. O valor exato por ponto depende ligeiramente do **contrato do broker** e do **tick value**; usa esta regra como **aproximação operacional**, não como fórmula contabilística.
+
+Os seis botões verdes/vermelhos da grelha **não mudam o sentido da operação**: verde abre **compra**, vermelho abre **venda**. O que muda é **como a posição será gerida depois de aberta** (comentário + *magic* internos para o EA reconhecer o modo).
+
+---
+
+#### TRAIL ATR BUY / TRAIL ATR SELL
+
+**Ideia:** o stop (e o alvo) acompanham a **volatilidade** recente do mercado, medida pelo **ATR**, em vez de avançarem só em passos fixos em pontos.
+
+**Quando costuma fazer sentido:** quando queres que a gestão **respire** com o ouro — em sessões mais nervosas o ATR sobe e os níveis afastam-se; em consolidação o ATR desce e a gestão aperta. Combina bem com leituras de **impulso** ou **tendência intradia** em que não queres um SL “engessado” só por pontos fixos.
+
+**O que acontece na prática (fases):**
+
+1. **Abertura** — A ordem entra com o **SL** e **TP em pontos** que definiste (como em qualquer modo). O EA marca a posição como modo **ATR** (*magic* dedicado, etiqueta **AT** no comentário).
+2. **Antes do gatilho** — Enquanto o preço **não** percorrer o lucro mínimo definido no campo **Gatilho** (o mesmo “Start Lucro” usado nos STEP), **não** há trailing ATR: o risco inicial mantém-se.
+3. **Depois do gatilho — break-even** — Quando o lucro a favor atinge esse mínimo, o EA tenta puxar o SL para a zona de **break-even** com o **BE Offset** (em pontos): ou seja, não ficas “flat” no preço exato de entrada, mas com uma pequena **marga a favor** para cobrir spread e ruído.
+4. **Trailing ATR** — Depois do BE, o EA passa a ajustar **SL** e **TP** com base na distância **ATR × ATR Mult** (lê **Periodo ATR** e **ATR Mult** no painel). Os níveis são recalculados conforme o mercado evolui, respeitando **stop level** e **freeze** do símbolo.
+
+**Parâmetros que mais importam aqui:** **Gatilho**, **BE Offset**, **Periodo ATR**, **ATR Mult**, além do **TP/SL** inicial que ainda limitam o “esqueleto” da posição no início.
+
+---
+
+#### STEP TS BUY / STEP TS SELL e STEP TT BUY / STEP TT SELL
+
+**Ideia:** gestão em **degraus fixos em pontos** — o mercado tem de andar **X** pontos a favor antes de ativar a lógica; depois o **SL** avança em **passos** configuráveis, com opcional **escada de trava**. O **TP** inicial permanece o que definiste nos edits (o EA não implementa um “trailing de TP” separado neste modo STEP).
+
+**STEP TS vs STEP TT — diferença real para ti:**
+
+- A **lógica de gestão é a mesma** nos dois (mesmos gatilhos, BE, *Trail Move*, escada).
+- A diferença é **organizacional**: **TS** usa um *magic* e etiqueta **TS** no comentário; **TT** usa outro *magic* e etiqueta **TT**. Serve para **separar no histórico**, relatórios ou na cabeça (“estas entradas foram estratégia A vs B”) sem alterar o comportamento do trailing.
+
+**O que acontece na prática (fases):**
+
+1. **Abertura** — Compra ou venda com **SL** e **TP** iniciais em pontos (campos **Stop Loss** / **Take Profit**).
+2. **Espera pelo gatilho** — Até o preço não andar **Gatilho** pontos a favor desde a entrada, o EA **não** move SL por trailing de degraus.
+3. **Após o gatilho** — O EA trabalha para colocar o SL na região de **break-even + BE Offset** (igual filosofia ao ATR: proteger a operação com folga mínima).
+4. **Trail Move** — Com o preço a continuar a favor, o SL pode avançar em **saltos** de **Trail Move** pontos (degraus), em vez de “colar” contínuo ao preço.
+5. **Escada (opcional)** — Se **Lucro/Degrau** e **Trava/Degrau** forem **ambos** maiores que zero: a cada **Lucro/Degrau** pontos de lucro a favor desde a entrada, sobe um degrau que **exige** que o SL esteja pelo menos **Trava/Degrau** pontos a favor **desde o preço de entrada** (compras: SL sobe; vendas: SL desce). Se **qualquer um** dos dois for **0**, a escada fica desligada e ficam só BE + *Trail Move*.
+
+**Exemplo numérico didático (XAUUSD, 0,01 lote):**  
+Se **Gatilho** = 180 pts, precisas de ~**1,80 USD** de movimento a favor (na aproximação 100 pts ≈ 1 USD com 0,01) só para a gestão STEP “acordar” e começar a proteger/tracionar o SL. Ajusta estes números ao teu preset e volatilidade do dia.
+
+**Quando costuma fazer sentido:** operações em que queres regras **claras e repetíveis** (“só mexo no stop depois de X pontos”, “ando o stop de Y em Y pontos”), típico de scalping com disciplina mecânica.
+
+---
+
+#### Como escolher entre ATR e STEP na mesa
+
+| Situação típica | Sugestão de botão |
+|:----------------|:------------------|
+| Queres que o stop “sinta” volatilidade e **não** só passos fixos | **TRAIL ATR** |
+| Queres regras fixas em **pontos** e opcional escada por lucro | **STEP TS** ou **STEP TT** (conforme queres etiquetar no histórico) |
+| Só queres TP/SL fixos sem gestão automática depois da entrada | **COMPRAR** / **VENDER** |
+
+**Regra prática:** configura primeiro **TP**, **SL** e **Gatilho** no painel (ou carrega um **preset**), imagina o movimento em **dólares** com a regra dos 100 pts, e só depois escolhe o botão da linha **ATR** ou **STEP** — o botão só escolhe o **modo de gestão**, não substitui o teu plano de risco nos edits.
 
 ### Zona **MOVER** · arrastar o painel
 
