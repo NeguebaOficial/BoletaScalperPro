@@ -129,7 +129,7 @@ void AtualizarPainelInformacao(const string symbol,
    ObjectSetInteger(0, "lblV_Saldo", OBJPROP_COLOR, COR_TEXTO);
 
    ObjectSetString(0, "lblV_Meta", OBJPROP_TEXT,
-                   StringFormat("$%.0f  |  falta $%.0f", metaValor, faltaMeta));
+                   StringFormat("$%.2f  |  falta $%.2f", metaValor, faltaMeta));
    ObjectSetInteger(0, "lblV_Meta", OBJPROP_COLOR, COR_TEXTO);
 
    double pnlDia = metaValor - faltaMeta;
@@ -505,9 +505,9 @@ void Panel_InitBoleta(const int x, const int y)
    CreateLabel("lblV_Saldo", colV, ySaldo, "$0.00", COR_TEXTO, 8);
    SetTooltip("lblV_Saldo", "Saldo (Account Balance).");
 
-   CreateLabel("lblK_Meta", colL, yMeta, "Meta 3%", COR_TEXTO_MUTE, 8);
-   CreateLabel("lblV_Meta", colV, yMeta, "$0 | falta $0", COR_TEXTO, 8);
-   SetTooltip("lblV_Meta", "Meta do dia (3%) e quanto falta para bater.");
+   CreateLabel("lblK_Meta", colL, yMeta, StringFormat("Meta %.0f%%", MetaD_Percent * 100.0), COR_TEXTO_MUTE, 8);
+   CreateLabel("lblV_Meta", colV, yMeta, "$0.00 | falta $0.00", COR_TEXTO, 8);
+   SetTooltip("lblV_Meta", "Meta do dia e quanto falta para bater.");
 
    CreateRectangle("barMetaBG", metaBarX, metaBarY, metaBarW, metaBarH, COR_CARD);
    CreateRectangle("barMetaFill", metaBarX, metaBarY, 0, metaBarH, COR_BUY_SOFT);

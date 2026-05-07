@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Modos de negociação da Boleta Scalper Pro com exemplos práticos para XAUUSD." />
+  <title>Modos Práticos XAUUSD · Boleta Scalper Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { gold: '#D4AF37', teal: '#00A79D', surface: '#0b0d10', muted: '#8b92a5' } } }
+    };
+  </script>
+</head>
+<body class="min-h-screen bg-surface text-slate-100 antialiased">
+  <header class="sticky top-0 z-20 border-b border-white/10 bg-black/40 backdrop-blur">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+      <a href="DocumentaçãoBoletaPro.html" class="text-sm font-semibold text-teal">← Voltar ao Hub</a>
+      <a href="ManualEducacionalBoleta.html" class="text-sm font-semibold text-gold">Manual educacional</a>
+    </nav>
+  </header>
+
+  <main class="mx-auto max-w-6xl px-4 py-10">
+    <section class="rounded-2xl border border-white/10 bg-white/[0.03] p-6 md:p-8">
+      <h1 class="text-3xl font-bold text-white md:text-4xl">Modos de Negociação · Exemplos Práticos (XAUUSD)</h1>
+      <p class="mt-4 text-sm leading-relaxed text-muted">
+        Base didática aplicada em todos os exemplos: <strong class="text-gold">0,01 lote a cada 100 pontos = US$ 1,00</strong>.
+      </p>
+    </section>
+
+    <section class="mt-8 grid gap-4 lg:grid-cols-3">
+      <article class="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+        <h2 class="text-lg font-bold text-white">Modo normal</h2>
+        <p class="mt-2 text-sm text-muted">Execução com SL/TP fixos para treino de disciplina de risco sem gestão avançada adicional.</p>
+        <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
+          <li>Lote: 0,01</li>
+          <li>Alvo atingido: 220 pts</li>
+          <li>Resultado estimado: US$ 2,20</li>
+        </ul>
+      </article>
+      <article class="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+        <h2 class="text-lg font-bold text-teal">TRAIL ATR</h2>
+        <p class="mt-2 text-sm text-muted">Indicado para volatilidade variável, com ajuste dinâmico após gatilho e break-even.</p>
+        <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
+          <li>Lote: 0,02</li>
+          <li>Movimento capturado: 310 pts</li>
+          <li>Resultado estimado: US$ 6,20</li>
+        </ul>
+      </article>
+      <article class="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+        <h2 class="text-lg font-bold text-gold">STEP TS / TT</h2>
+        <p class="mt-2 text-sm text-muted">Regras fixas em degraus para quem precisa de objetividade de execução e comparativo por etiqueta.</p>
+        <ul class="mt-3 list-disc space-y-2 pl-5 text-sm text-muted">
+          <li>Lote: 0,03</li>
+          <li>Movimento capturado: 180 pts</li>
+          <li>Resultado estimado: US$ 5,40</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-6">
+      <h2 class="text-xl font-bold text-white">TS vs TT no estudo prático</h2>
+      <p class="mt-3 text-sm text-muted">
+        TS e TT possuem a mesma lógica de gestão; a diferença operacional está na organização dos dados. Isso permite conduzir estudos A/B sem alterar o algoritmo.
+      </p>
+      <div class="mt-4 overflow-x-auto rounded-xl border border-white/10">
+        <table class="min-w-full text-left text-sm">
+          <thead class="bg-white/5 text-xs uppercase tracking-wide text-muted">
+            <tr><th class="px-4 py-3">Estratégia</th><th class="px-4 py-3">Lote</th><th class="px-4 py-3">Pontos</th><th class="px-4 py-3">Estimativa</th></tr>
+          </thead>
+          <tbody class="divide-y divide-white/10 text-muted">
+            <tr><td class="px-4 py-3 text-white">STEP TS</td><td class="px-4 py-3">0,01</td><td class="px-4 py-3">+250</td><td class="px-4 py-3">US$ 2,50</td></tr>
+            <tr><td class="px-4 py-3 text-white">STEP TT</td><td class="px-4 py-3">0,01</td><td class="px-4 py-3">+140</td><td class="px-4 py-3">US$ 1,40</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

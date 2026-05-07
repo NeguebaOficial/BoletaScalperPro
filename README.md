@@ -12,7 +12,7 @@
 
 *Copywriter · **Negueba Trader***
 
-[Visão geral](#visão-geral) · [O que faz](#o-que-este-ea-faz) · [Instalação](#como-instalar-no-metatrader-5) · [Tour](#tour-pelo-painel) · [Botões de gestão](#guia-didático-botões-trail-atr-e-step-tstt-xauusd) · [Arquitetura](#arquitetura-do-projeto) · [Defaults](#valores-padrão-scalper-xauusd) · [Fluxo](#fluxo-rápido-de-uso) · [Repo](#repositório)
+[Visão geral](#visão-geral) · [Proposta educacional](#proposta-educacional-e-manual-de-estudos) · [Como funciona](#como-a-boleta-funciona-por-dentro-boletascalperpromq5) · [O que faz](#o-que-este-ea-faz) · [Instalação](#como-instalar-no-metatrader-5) · [Tour](#tour-pelo-painel) · [Botões de gestão](#guia-didático-botões-trail-atr-e-step-tstt-xauusd) · [Arquitetura](#arquitetura-do-projeto) · [Defaults](#valores-padrão-scalper-xauusd) · [Fluxo](#fluxo-rápido-de-uso) · [Repo](#repositório)
 
 </div>
 
@@ -30,6 +30,90 @@
 | **Plataforma** | MetaTrader 5 |
 | **Ficheiro principal** | `BoletaScalperPro.mq5` |
 | **Ideal para** | Scalping e day trade com controle visual rápido |
+
+---
+
+## 🎓 Proposta educacional e manual de estudos
+
+> **Objetivo pedagógico:** transformar cliques de execução em rotina técnica com método, disciplina e leitura de risco.
+
+Esta boleta foi desenhada para apoiar o aluno no processo de tomada de decisão, não para "adivinhar mercado". Em linguagem de sala de aula:
+
+1. **Leitura**: você define contexto (tendência, range, evento, volatilidade).
+2. **Plano**: você fixa lote, SL, TP e gatilho antes da entrada.
+3. **Execução**: escolhe o botão conforme o tipo de gestão (normal, ATR, STEP TS/TT).
+4. **Acompanhamento**: usa INFO e status de gestão para validar se o plano está a ser cumprido.
+5. **Revisão**: separa estratégias por modo (TS/TT/AT) para estudar desempenho depois.
+
+### Roteiro didático sugerido (treino em demo)
+
+| Semana | Foco | Meta de aprendizagem |
+|:-------|:-----|:----------------------|
+| **1** | **Modo normal (COMPRAR/VENDER)** | Entender relação TP/SL em pontos e impacto no financeiro por lote. |
+| **2** | **STEP TS/TT** | Dominar gatilho, BE offset, trail move e escada de trava. |
+| **3** | **TRAIL ATR** | Entender como o ATR altera a distância dinâmica de gestão em sessão volátil vs. sessão lenta. |
+| **4** | **Comparação entre modos** | Medir consistência, drawdown e aderência ao plano para cada contexto. |
+
+### Conduta operacional (ABNT2 · linguagem formal)
+
+- Registre hipótese, entrada, modo escolhido, parâmetros e resultado final.
+- Evite alterar parâmetros "no calor" da operação sem motivo técnico documentado.
+- Priorize consistência de processo antes de buscar aumento de lote.
+- Replique em conta demo até conseguir repetibilidade estatística mínima.
+
+### Conversão didática oficial (XAUUSD)
+
+Para os exemplos deste projeto, adote a seguinte proporção operacional:
+
+- **0,01 lote a cada 100 pontos equivale a US$ 1,00**.
+
+Com isso, fica simples escalar:
+
+- **0,02 lote**: 100 pts ≈ **US$ 2,00**
+- **0,05 lote**: 100 pts ≈ **US$ 5,00**
+- **0,10 lote**: 100 pts ≈ **US$ 10,00**
+
+> Regra de bolso para ensino:  
+> **Resultado estimado (US$) = (Pontos / 100) × (Lote / 0,01)**.
+
+---
+
+## 🧠 Como a boleta funciona por dentro (`BoletaScalperPro.mq5`)
+
+No ficheiro principal, a lógica é curta e objetiva, com quatro eventos:
+
+- **`OnInit()`**: calcula posição inicial no gráfico e chama `Panel_InitBoleta(...)`.
+- **`OnTick()`**: coleta PnL/posições, atualiza meta do dia, refresca painel e chama `GerenciarTrailing()`.
+- **`OnChartEvent()`**: repassa cliques/edições/arrasto para `Panel_OnChartEvent(...)`.
+- **`OnDeinit()`**: libera recursos (ex.: handle do ATR).
+
+### Fluxo técnico do `OnTick()` (didático)
+
+1. **Varredura de posições**: soma PnL total da conta, PnL do símbolo atual, contagem BUY/SELL e ticket de referência.
+2. **Meta diária**: define base do dia (`metaDayStartBalance`), calcula `metaValor`, `pnlDia` e `faltaMeta`.
+3. **Refresh visual**: atualiza bloco INFO em janela temporal (`PANEL_REFRESH_MS`) para não "pesar" a UI.
+4. **Gestão ativa**: executa trailing (STEP/ATR) em todas as posições elegíveis do símbolo.
+
+### Papel de cada modo de negociação (visão de professor)
+
+| Modo | Mecânica | Quando o aluno tende a usar melhor |
+|:-----|:---------|:-----------------------------------|
+| **Normal** | Entra com SL/TP fixos, sem lógica extra de trailing automático específico. | Treino inicial de execução, disciplina de risco e leitura de payoff. |
+| **TRAIL ATR** | Após gatilho + BE, move níveis com distância dinâmica (`ATR × ATR_Mult`). | Sessões com volatilidade variável, quando stop fixo fica "duro" demais. |
+| **STEP TS** | Degraus fixos após gatilho; BE, trail move e escada opcional. | Operação mecânica com regras claras e repetíveis. |
+| **STEP TT** | Mesma lógica do TS, alterando etiqueta/magic para separar contexto. | Estudos A/B no histórico, sem mudar algoritmo de gestão. |
+
+### Exemplos práticos de escolha de modo
+
+- **Exemplo 1 (abertura de Londres, ouro acelerando):** tendência limpa e ATR a subir. Estratégia didática: testar `TRAIL ATR` para permitir "respiração" da posição.  
+  Simulação: lote **0,01**, avanço de **320 pts** ≈ **US$ 3,20**.
+- **Exemplo 2 (mercado em range curto):** oscilação previsível em caixas. Estratégia didática: `STEP TS` com gatilho e trail mais curtos para travar parcial de movimento.  
+  Simulação: lote **0,02**, avanço de **180 pts** ≈ **US$ 3,60**.
+- **Exemplo 3 (duas leituras diferentes no mesmo dia):** usar `STEP TS` numa ideia e `STEP TT` noutra para separar histórico por etiqueta e comparar eficácia.  
+  Simulação comparativa:  
+  TS: lote **0,01**, +250 pts ≈ **US$ 2,50** · TT: lote **0,01**, +140 pts ≈ **US$ 1,40**.
+
+> **Nota de ensino:** TS e TT não mudam a matemática da gestão; mudam a rastreabilidade da estratégia.
 
 ---
 
@@ -163,7 +247,8 @@ Entre esta grelha e os botões **COMPRAR / VENDER** existe um **separador horizo
 
 A boleta foi pensada para operar **XAUUSD** no MT5 com leitura em **pontos** do símbolo (os mesmos valores que vês nos campos **TP**, **SL** e **Gatilho**). Para mentalizar risco em scalping/day trade:
 
-- Com **0,01 lote**, uma variação de preço de **100 pontos** no ouro (na convenção usual de 2 casas decimais no gráfico) corresponde, em termos simples, a cerca de **1 dólar** de resultado por **100 pontos** a favor ou contra — útil para traduzir “180 pts de gatilho” ou “120 pts de trail” em dinheiro na cabeça. O valor exato por ponto depende ligeiramente do **contrato do broker** e do **tick value**; usa esta regra como **aproximação operacional**, não como fórmula contabilística.
+- Para este projeto, adota-se a equivalência didática: **0,01 lote a cada 100 pontos = US$ 1,00**.  
+  Exemplo mental rápido: `180 pts` com `0,01` ≈ **US$ 1,80**; com `0,03` ≈ **US$ 5,40**.
 
 Os seis botões verdes/vermelhos da grelha **não mudam o sentido da operação**: verde abre **compra**, vermelho abre **venda**. O que muda é **como a posição será gerida depois de aberta** (comentário + *magic* internos para o EA reconhecer o modo).
 
@@ -204,7 +289,10 @@ Os seis botões verdes/vermelhos da grelha **não mudam o sentido da operação*
 5. **Escada (opcional)** — Se **Lucro/Degrau** e **Trava/Degrau** forem **ambos** maiores que zero: a cada **Lucro/Degrau** pontos de lucro a favor desde a entrada, sobe um degrau que **exige** que o SL esteja pelo menos **Trava/Degrau** pontos a favor **desde o preço de entrada** (compras: SL sobe; vendas: SL desce). Se **qualquer um** dos dois for **0**, a escada fica desligada e ficam só BE + *Trail Move*.
 
 **Exemplo numérico didático (XAUUSD, 0,01 lote):**  
-Se **Gatilho** = 180 pts, precisas de ~**1,80 USD** de movimento a favor (na aproximação 100 pts ≈ 1 USD com 0,01) só para a gestão STEP “acordar” e começar a proteger/tracionar o SL. Ajusta estes números ao teu preset e volatilidade do dia.
+Se **Gatilho** = 180 pts, precisas de **US$ 1,80** de movimento a favor para a gestão STEP “acordar” e começar a proteger/tracionar o SL.
+
+**Exemplo com lote maior (0,05):**  
+No mesmo gatilho de 180 pts, a exigência passa para **US$ 9,00** (cinco vezes maior).
 
 **Quando costuma fazer sentido:** operações em que queres regras **claras e repetíveis** (“só mexo no stop depois de X pontos”, “ando o stop de Y em Y pontos”), típico de scalping com disciplina mecânica.
 

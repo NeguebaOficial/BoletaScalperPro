@@ -89,6 +89,11 @@
         </a>
         <div class="hidden items-center gap-1 text-sm text-muted md:flex">
           <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#visao">Visão geral</a>
+          <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#manual-educacional">Manual educacional</a>
+          <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#como-funciona">Como funciona</a>
+          <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="ManualEducacionalBoleta.html">Guia completo</a>
+          <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="ModosPraticosXAUUSD.html">Modos práticos</a>
+          <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="Aula1-FundamentosBoleta.html">Trilha Aulas</a>
           <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#recursos">Recursos</a>
           <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#arquitetura">Arquitetura</a>
           <a class="rounded-lg px-3 py-2 hover:bg-white/5 hover:text-white" href="#instalacao">Instalação</a>
@@ -230,6 +235,98 @@
               <tr><td class="px-4 py-3 font-semibold text-gold">Ideal para</td><td class="px-4 py-3 text-muted">Scalping e day trade com controle visual rápido</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- MANUAL EDUCACIONAL -->
+    <section id="manual-educacional" class="reveal-section mx-auto max-w-6xl px-4 pb-16">
+      <div class="glass rounded-2xl p-6 md:p-8">
+        <h2 class="mb-4 flex items-center gap-2 text-2xl font-bold text-white">
+          <i data-lucide="graduation-cap" class="h-6 w-6 text-gold"></i>
+          Proposta educacional e manual de uso
+        </h2>
+        <p class="mb-6 text-sm leading-relaxed text-muted">
+          Esta boleta é um instrumento de treino técnico: o operador decide <strong class="text-white">contexto</strong>, <strong class="text-white">risco</strong> e <strong class="text-white">execução</strong>, enquanto o EA padroniza a aplicação da gestão escolhida. Em didática de mercado, o foco é repetir processo com disciplina para produzir dados de melhoria contínua.
+        </p>
+        <div class="grid gap-4 md:grid-cols-2">
+          <article class="rounded-xl border border-white/10 bg-black/30 p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gold">Ciclo pedagógico</p>
+            <ol class="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted">
+              <li>Leitura de contexto (tendência, range, volatilidade, evento).</li>
+              <li>Definição de plano (lote, SL, TP, gatilho, modo).</li>
+              <li>Execução no botão correto conforme objetivo da gestão.</li>
+              <li>Monitoramento pelo bloco INFO e status de gestão.</li>
+              <li>Revisão estatística por modo (normal, ATR, TS, TT).</li>
+            </ol>
+          </article>
+          <article class="rounded-xl border border-white/10 bg-black/30 p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-teal">Roteiro de evolução (demo)</p>
+            <ul class="mt-3 space-y-2 text-sm text-muted">
+              <li><strong class="text-white">Semana 1:</strong> modo normal para dominar execução e risco.</li>
+              <li><strong class="text-white">Semana 2:</strong> STEP TS/TT para dominar gatilho, BE e escada.</li>
+              <li><strong class="text-white">Semana 3:</strong> ATR para adaptação a volatilidade variável.</li>
+              <li><strong class="text-white">Semana 4:</strong> comparação A/B com base em histórico etiquetado.</li>
+            </ul>
+          </article>
+        </div>
+        <p class="mt-6 rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 text-sm text-muted">
+          <strong class="text-gold">Orientação formal (PT-BR / ABNT2):</strong> registre hipótese, parâmetros e motivo da escolha do modo; evite alterações impulsivas durante a execução; valide consistência antes de elevar lote.
+        </p>
+        <div class="mt-6 grid gap-3 md:grid-cols-2">
+          <a href="ManualEducacionalBoleta.html" class="rounded-xl border border-teal/30 bg-teal/10 px-4 py-3 text-sm font-semibold text-teal transition hover:brightness-110">
+            Abrir manual completo (checklists e metodologia)
+          </a>
+          <a href="ModosPraticosXAUUSD.html" class="rounded-xl border border-gold/30 bg-gold/10 px-4 py-3 text-sm font-semibold text-gold transition hover:brightness-110">
+            Abrir página de modos práticos (XAUUSD)
+          </a>
+        </div>
+        <a href="Aula1-FundamentosBoleta.html" class="mt-3 inline-block rounded-xl border border-cyan-400/30 bg-cyan-400/10 px-4 py-3 text-sm font-semibold text-cyan-300 transition hover:brightness-110">
+          Iniciar trilha de estudos (Aula 1 → Aula 3)
+        </a>
+      </div>
+    </section>
+
+    <!-- COMO FUNCIONA -->
+    <section id="como-funciona" class="reveal-section mx-auto max-w-6xl px-4 pb-16">
+      <div class="glass rounded-2xl p-6 md:p-8">
+        <h2 class="mb-4 flex items-center gap-2 text-2xl font-bold text-white">
+          <i data-lucide="workflow" class="h-6 w-6 text-teal"></i>
+          Como funciona por dentro: BoletaScalperPro.mq5
+        </h2>
+        <p class="mb-6 text-sm leading-relaxed text-muted">
+          O ficheiro principal atua como orquestrador entre interface e motor de gestão. Em termos de engenharia didática, o aluno consegue mapear claramente eventos de entrada, atualização e encerramento.
+        </p>
+        <div class="overflow-x-auto rounded-xl border border-white/10">
+          <table class="min-w-full text-left text-sm">
+            <thead class="bg-white/5 text-xs uppercase tracking-wide text-muted">
+              <tr><th class="px-4 py-3">Evento</th><th class="px-4 py-3">Função didática e técnica</th></tr>
+            </thead>
+            <tbody class="divide-y divide-white/10 text-muted">
+              <tr><td class="px-4 py-3 font-semibold text-white">OnInit</td><td class="px-4 py-3">Posiciona e inicializa o painel de boleta no gráfico.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">OnTick</td><td class="px-4 py-3">Consolida PnL e posições, calcula meta do dia, atualiza painel e roda trailing.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">OnChartEvent</td><td class="px-4 py-3">Captura cliques, edições e arrasto da interface.</td></tr>
+              <tr><td class="px-4 py-3 font-semibold text-white">OnDeinit</td><td class="px-4 py-3">Libera recursos internos (como handle de ATR).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3 class="mb-3 mt-8 text-lg font-bold text-gold">Exemplos práticos de decisão por modo</h3>
+        <p class="mb-4 text-sm text-muted">
+          Proporção didática usada nos exemplos: <strong class="text-white">0,01 lote a cada 100 pontos = US$ 1,00</strong>.
+        </p>
+        <div class="grid gap-4 md:grid-cols-3">
+          <article class="rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-muted">
+            <p class="font-semibold text-white">Cenário 1 · impulso com volatilidade crescente</p>
+            <p class="mt-2">Tendência com ATR a subir. Didaticamente, <strong class="text-teal">TRAIL ATR</strong> tende a adaptar melhor a distância de gestão. Exemplo: 0,02 lote e 300 pts ≈ US$ 6,00.</p>
+          </article>
+          <article class="rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-muted">
+            <p class="font-semibold text-white">Cenário 2 · range técnico curto</p>
+            <p class="mt-2">Oscilação repetitiva em caixa. Didaticamente, <strong class="text-teal">STEP TS</strong> favorece trava progressiva por regra fixa. Exemplo: 0,03 lote e 180 pts ≈ US$ 5,40.</p>
+          </article>
+          <article class="rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-muted">
+            <p class="font-semibold text-white">Cenário 3 · estudo comparativo</p>
+            <p class="mt-2">Mesma sessão com duas hipóteses. Use <strong class="text-teal">TS</strong> e <strong class="text-teal">TT</strong> para separar histórico sem alterar a lógica. TS +250 pts (0,01) ≈ US$ 2,50; TT +140 pts (0,01) ≈ US$ 1,40.</p>
+          </article>
         </div>
       </div>
     </section>
