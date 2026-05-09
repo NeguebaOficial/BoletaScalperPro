@@ -72,6 +72,192 @@ void UpdateEdit(const string name, double value)
    ObjectSetString(0, name, OBJPROP_TEXT, DoubleToString(value, 2));
   }
 
+//+------------------------------------------------------------------+
+//| Validação numérica dos campos editáveis                          |
+//+------------------------------------------------------------------+
+bool TryParseInt(const string text, int &outValue)
+  {
+   string s = text;
+   StringTrimLeft(s);
+   StringTrimRight(s);
+   int n = StringLen(s);
+   if(n == 0) return false;
+   for(int i = 0; i < n; i++)
+     {
+      ushort c = StringGetCharacter(s, i);
+      if(c < '0' || c > '9') return false;
+     }
+   outValue = (int)StringToInteger(s);
+   return true;
+  }
+
+bool TryParseDouble(const string text, double &outValue)
+  {
+   string s = text;
+   StringTrimLeft(s);
+   StringTrimRight(s);
+   StringReplace(s, ",", ".");
+   int n = StringLen(s);
+   if(n == 0) return false;
+   int dots = 0, digits = 0;
+   for(int i = 0; i < n; i++)
+     {
+      ushort c = StringGetCharacter(s, i);
+      if(c >= '0' && c <= '9')
+         digits++;
+      else if(c == '.')
+        {
+         dots++;
+         if(dots > 1) return false;
+        }
+      else
+         return false;
+     }
+   if(digits == 0) return false;
+   outValue = StringToDouble(s);
+   return true;
+  }
+
+//+------------------------------------------------------------------+
+//| Lê o texto do edit, valida, atualiza estado e refresca o display |
+//| Garante que o valor digitado seja "commitado" mesmo sem Enter.   |
+//+------------------------------------------------------------------+
+void ApplyEditValue(const string name)
+  {
+   if(ObjectFind(0, name) < 0) return;
+   string text = ObjectGetString(0, name, OBJPROP_TEXT);
+
+   if(name == "editLote")
+     {
+      double v;
+      if(TryParseDouble(text, v))
+        {
+         if(v < 0.01) v = 0.01;
+         Lotes = v;
+        }
+      UpdateEdit("editLote", Lotes);
+      return;
+     }
+   if(name == "editTP")
+     {
+      int v;
+      if(TryParseInt(text, v))
+        {
+         if(v < 0) v = 0;
+         TP_Pontos = v;
+        }
+      UpdateEditInt("editTP", TP_Pontos);
+      return;
+     }
+   if(name == "editSL")
+     {
+      int v;
+      if(TryParseInt(text, v))
+        {
+         if(v < 0) v = 0;
+         SL_Pontos = v;
+        }
+      UpdateEditInt("editSL", SL_Pontos);
+      return;
+     }
+   if(name == "editTrailStep")
+     {
+      int v;
+      if(TryParseInt(text, v))
+        {
+         if(v < 0) v = 0;
+         TrailStep_Pontos = v;
+        }
+      UpdateEditInt("editTrailStep", TrailStep_Pontos);
+      return;
+     }
+   if(name == "editATRPeriod")
+     {
+      int p;
+      if(TryParseInt(text, p))
+        {
+         if(p < 1) p = 1;
+         if(p != ATR_Period)
+           {
+            ATR_Period = p;
+            if(atrHandle != INVALID_HANDLE) IndicatorRelease(atrHandle);
+            atrHandle = iATR(_Symbol, _Period, ATR_Period);
+           }
+        }
+      UpdateEditInt("editATRPeriod", ATR_Period);
+      return;
+     }
+   if(name == "editATRMul")
+     {
+      double m;
+      if(TryParseDouble(text, m))
+        {
+         if(m < 0.10) m = 0.10;
+         ATR_Mult = m;
+        }
+      ObjectSetString(0, "editATRMul", OBJPROP_TEXT, DoubleToString(ATR_Mult, 2));
+      return;
+     }
+   if(name == "editTrailMove")
+     {
+      int t;
+      if(TryParseInt(text, t))
+        {
+         if(t < 1) t = 1;
+         TrailMove_Pontos = t;
+        }
+      UpdateEditInt("editTrailMove", TrailMove_Pontos);
+      return;
+     }
+   if(name == "editBEOffset")
+     {
+      int be;
+      if(TryParseInt(text, be))
+        {
+         if(be < 0) be = 0;
+         BreakEvenOffset_Pontos = be;
+        }
+      UpdateEditInt("editBEOffset", BreakEvenOffset_Pontos);
+      return;
+     }
+   if(name == "editRatchetEvery")
+     {
+      int re;
+      if(TryParseInt(text, re))
+        {
+         if(re < 0) re = 0;
+         RatchetProfitEvery_Pontos = re;
+        }
+      UpdateEditInt("editRatchetEvery", RatchetProfitEvery_Pontos);
+      return;
+     }
+   if(name == "editRatchetLock")
+     {
+      int rl;
+      if(TryParseInt(text, rl))
+        {
+         if(rl < 0) rl = 0;
+         RatchetLockPts_Pontos = rl;
+        }
+      UpdateEditInt("editRatchetLock", RatchetLockPts_Pontos);
+      return;
+     }
+  }
+
+void CommitAllEditFields()
+  {
+   ApplyEditValue("editLote");
+   ApplyEditValue("editTP");
+   ApplyEditValue("editSL");
+   ApplyEditValue("editTrailStep");
+   ApplyEditValue("editATRPeriod");
+   ApplyEditValue("editATRMul");
+   ApplyEditValue("editTrailMove");
+   ApplyEditValue("editBEOffset");
+   ApplyEditValue("editRatchetEvery");
+   ApplyEditValue("editRatchetLock");
+  }
+
 void ApplyPreset(const int presetId)
   {
    ApplyPresetToState(presetId);
@@ -573,6 +759,8 @@ void Panel_OnChartEvent(const int id, const long &lparam, const double &dparam, 
 
    if(id == CHARTEVENT_OBJECT_CLICK)
      {
+      CommitAllEditFields();
+
       if(sparam == "btnBuy") AbrirOrdem(true, MODE_NORMAL);
       if(sparam == "btnSell") AbrirOrdem(false, MODE_NORMAL);
 
@@ -629,52 +817,7 @@ void Panel_OnChartEvent(const int id, const long &lparam, const double &dparam, 
 
    if(id == CHARTEVENT_OBJECT_ENDEDIT)
      {
-      if(sparam == "editLote") Lotes = StringToDouble(ObjectGetString(0, "editLote", OBJPROP_TEXT));
-      if(sparam == "editTP") TP_Pontos = (int)StringToInteger(ObjectGetString(0, "editTP", OBJPROP_TEXT));
-      if(sparam == "editSL") SL_Pontos = (int)StringToInteger(ObjectGetString(0, "editSL", OBJPROP_TEXT));
-      if(sparam == "editTrailStep") TrailStep_Pontos = (int)StringToInteger(ObjectGetString(0, "editTrailStep", OBJPROP_TEXT));
-
-      if(sparam == "editATRPeriod")
-        {
-         int p = (int)StringToInteger(ObjectGetString(0, "editATRPeriod", OBJPROP_TEXT));
-         if(p < 1) p = 1;
-         if(p != ATR_Period)
-           {
-            ATR_Period = p;
-            if(atrHandle != INVALID_HANDLE) IndicatorRelease(atrHandle);
-            atrHandle = iATR(_Symbol, _Period, ATR_Period);
-           }
-        }
-      if(sparam == "editATRMul")
-        {
-         double m = StringToDouble(ObjectGetString(0, "editATRMul", OBJPROP_TEXT));
-         if(m <= 0.0) m = 0.1;
-         ATR_Mult = m;
-        }
-      if(sparam == "editTrailMove")
-        {
-         int t = (int)StringToInteger(ObjectGetString(0, "editTrailMove", OBJPROP_TEXT));
-         if(t < 1) t = 1;
-         TrailMove_Pontos = t;
-        }
-      if(sparam == "editBEOffset")
-        {
-         int be = (int)StringToInteger(ObjectGetString(0, "editBEOffset", OBJPROP_TEXT));
-         if(be < 0) be = 0;
-         BreakEvenOffset_Pontos = be;
-        }
-      if(sparam == "editRatchetEvery")
-        {
-         int re = (int)StringToInteger(ObjectGetString(0, "editRatchetEvery", OBJPROP_TEXT));
-         if(re < 0) re = 0;
-         RatchetProfitEvery_Pontos = re;
-        }
-      if(sparam == "editRatchetLock")
-        {
-         int rl = (int)StringToInteger(ObjectGetString(0, "editRatchetLock", OBJPROP_TEXT));
-         if(rl < 0) rl = 0;
-         RatchetLockPts_Pontos = rl;
-        }
+      ApplyEditValue(sparam);
      }
   }
 

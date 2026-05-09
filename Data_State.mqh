@@ -7,11 +7,11 @@
 // ================= VARIÁVEIS DE ESTADO / PARÂMETROS =================
 // Defaults de operação (XAUUSD / scalper — alinhados ao painel)
 double Lotes = 0.01;
-int TP_Pontos = 1000;
+int TP_Pontos = 2400;
 int SL_Pontos = 1200;
-int TrailStep_Pontos = 180;
-int BreakEvenOffset_Pontos = 100;
-int TrailMove_Pontos = 120;
+int TrailStep_Pontos = 230;
+int BreakEvenOffset_Pontos = 130;
+int TrailMove_Pontos = 135;
 
 // Escada de trava (só STEP TS/TT): a cada RatchetProfitEvery_Pontos de lucro a favor desde a entrada,
 // o SL mínimo (BUY) / máximo (SELL) avança RatchetLockPts_Pontos desde a entrada. 0 em "Lucro/degrau" desliga.
@@ -19,11 +19,11 @@ int RatchetProfitEvery_Pontos = 400;
 int RatchetLockPts_Pontos = 100;
 
 // Presets (XAUUSD ~spread 40 pts) — SCALP espelha os defaults acima
-int PRESET_SCALP_TP = 1000;
+int PRESET_SCALP_TP = 2400;
 int PRESET_SCALP_SL = 1200;
-int PRESET_SCALP_START = 180;
-int PRESET_SCALP_TRAILMOVE = 120;
-int PRESET_SCALP_BEOFFSET = 100;
+int PRESET_SCALP_START = 230;
+int PRESET_SCALP_TRAILMOVE = 135;
+int PRESET_SCALP_BEOFFSET = 130;
 double PRESET_SCALP_ATRMUL = 1.20;
 int PRESET_SCALP_RATCHEVERY = 400;
 int PRESET_SCALP_RATCHECK = 100;
